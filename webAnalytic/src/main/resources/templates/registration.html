@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <link rel="shortcut icon" href="/images/registration.png" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link
+            href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap"
+            rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style/registration.css"/>
+    <title>Регистрация</title>
+</head>
+
+<body>
+<div class="container">
+    <div class="row justify-content-center align-content-center">
+        <div class="col-12 col-md-6 col-lg-5">
+            <div class="wrapper">
+                <div class="btnBlock text-end">
+                    <a href="authorization.html" class="btn btnEntr m-4">Войти</a>
+                </div>
+                <div class="formBlock p-4">
+                    <div class="title text-center mb-5">
+                        <h3 mb-3><b>Регистрация</b></h3>
+                    </div>
+                    <form th:action="@{/account/registration}" th:object="${newUser}" th:method="POST">
+                        <div class="mb-3">
+                            <input type="text" class="form" th:field="*{name}" aria-describedby="nameHelp"
+                                   placeholder="Имя">
+                        </div>
+                        <div class="alert alert-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                        <div class="mb-3">
+                            <input type="text" class="form" th:field="*{login}" id="InputLogin" aria-describedby="userHelp"
+                                   placeholder="Логин">
+                        </div>
+                        <div class="alert alert-danger" th:if="${#fields.hasErrors('login')}" th:errors="*{login}"></div>
+                        <div class="mb-3">
+                            <input type="password" class="form" th:field="*{passwordString}"
+                                   aria-describedby="passwordHelp" placeholder="Пароль">
+                        </div>
+                        <div class="alert alert-danger" th:if="${#fields.hasErrors('passwordString')}"
+                             th:errors="*{passwordString}"></div>
+                        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+                        <div class="btnBlock mb-4">
+                            <button type="submit" class="btn btn-lg btnReg" id="btnReg">Зарегистрироваться</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

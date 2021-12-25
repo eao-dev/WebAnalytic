@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      th:include="/layouts/layout::page">
+
+<title id="title">Управление аккаунтом</title>
+
+<div th:fragment="headerTitle"><h1>Управление аккаунтом</h1></div>
+
+<div th:fragment="menu"></div>
+
+<div th:fragment="content"></div>
+<div th:fragment="contentCenter">
+    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <br>
+    <div class="row justify-content-center align-content-center m-0">
+        <div class="col-12 col-lg-8 col-xxl-4">
+            <div class="wrapper">
+                <div class="formBlock p-4">
+                            <form name="changeForm" th:method="patch" th:action="@{/account/edit}">
+
+                                <div class="mb-1 mb-md-3">
+                                    <input type="text" class="form placeh" name="name" placeholder="Новое имя...">
+                                </div>
+
+                                <div class="mb-1 mb-md-3">
+                                    <input type="password" class="form placeh" name="password"
+                                           aria-describedby="passwordHelp" placeholder="Новый пароль...">
+                                </div>
+
+                                <div class="row btnBlock mb-4">
+                                    <div class="col-12 col-md-6 mt-2 mt-md-0"><button type="submit" class="btn btn-primary w-100">Изменить данные</button></div>
+                                    <div class="col-12 col-md-6 mt-4 mt-md-0"><button type="button" data-bs-toggle="modal" data-bs-target="#simplyModal"
+                                                               class="btn btn-danger w-100">Удалить
+                                        учётную запись
+                                    </button></div>
+
+
+                                </div>
+                            </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="additionally"></div>
+
+<!-- MODAL -->
+<div th:fragment="simplyModalBody">
+    <form th:action="@{'/account/delete'}" th:method="delete">
+        <button class="btn" id="btnYesDel" type="submit">Да</button>
+    </form>
+    <button type="button" class="btn btnModel" data-bs-dismiss="modal">Нет</button>
+</div>
+<div th:fragment="simplyModalTitle">Вы действительно хотите удалить учётную запись?</div>
+<!-- /MODAL -->
+
+<div th:fragment="scriptInclude"></div>
+
+</html>

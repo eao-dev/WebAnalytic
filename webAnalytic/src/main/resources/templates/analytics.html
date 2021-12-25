@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      th:include="/layouts/layout::page">
+
+<title id="title">Аналитика</title>
+
+<div th:fragment="headerTitle"><h1>Аналитика</h1></div>
+
+<div th:fragment="menu">
+</div>
+
+<div th:fragment="additionally"></div>
+
+<div th:fragment="contentCenter"></div>
+
+<div th:fragment="content">
+            <div class="form-check form-switch">
+                <div class="row m-0 p-3">
+                    <div class="col-xxl-8 mb-3 mb-xxl-0">
+                        <div class="accordion" id="accordionExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        ФИЛЬТРЫ
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <form name="formFilter">
+                                            <div id="formFilter"></div>
+                                            <h6 class="mt-4">Временной интервал:</h6>
+                                            <input type="hidden" name="siteId" th:value="${siteId}">
+                                            <input class="form2 mb-2 mb-lg-0" type="text" name="dateFrom" th:value="${dateMin}">
+                                            <input class="form2" type="text" name="dateTo" th:value="${dateMax}">
+                                            <br>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-4 d-flex">
+                        <button class="btn btn-primary me-3 w-auto" type="button" onclick="updateData();">Получить данные</button>
+                        <a data-bs-toggle="modal" class="btn btn-primary w-auto" data-bs-target="#simplyModal">Создать отчёт</a>
+                </div>
+                    <div class="col-12">
+                        <div id="analyticInfo">
+                            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+
+                            <!-- CHARTS -->
+                            <div id="charts">
+                                <div class="accordion mt-5" id="accordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading1">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                                                ОБЩАЯ СТАТИСТИКА
+                                            </button>
+                                        </h2>
+                                        <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="heading1" data-bs-parent="#accordion">
+                                            <div class="accordion-body">
+                                                <div id="textInfo"></div>
+                                                <div id="general"></div> <!-- общая статистика -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading2">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
+                                                СТАТИСТИКА ЦЕЛЕВОЙ АУДИТОРИИ
+                                            </button>
+                                        </h2>
+                                        <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#accordion">
+                                            <div class="accordion-body">
+                                                <div id="audience"></div> <!-- статистика целевой аудитории -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading3">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
+                                                СТАТИСТИКА ЦЕЛЕВОЙ АУДИТОРИИ ПО ОТНОШЕНИЮ К СТРАНИЦАМ САЙТА
+                                            </button>
+                                        </h2>
+                                        <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#accordion">
+                                            <div class="accordion-body">
+                                                <!-- статистика целевой аудитории по отношению к страницам сайта -->
+                                                <div class="accordion" id="accordionItem">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading01">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse01" aria-expanded="true" aria-controls="collapse01">
+                                                                Статистика разрешения экрана
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse01" class="accordion-collapse collapse" aria-labelledby="heading01" data-bs-parent="#accordionItem">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_res_ScResolution"></div> <!-- статистика раззрешения экрана -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading02">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse02" aria-expanded="true" aria-controls="collapse02">
+                                                                Статистика операционных систем
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse02" class="accordion-collapse collapse" aria-labelledby="heading02" data-bs-parent="#accordionItem">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_res_OS"></div> <!-- статистика операционных системы -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading03">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse03" aria-expanded="true" aria-controls="collapse03">
+                                                                Статистика браузеров
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse03" class="accordion-collapse collapse" aria-labelledby="heading03" data-bs-parent="#accordionItem">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_res_browser"></div>  <!-- статистика браузеров -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading04">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse04" aria-expanded="true" aria-controls="collapse04">
+                                                                Статистика устройств
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse04" class="accordion-collapse collapse" aria-labelledby="heading04" data-bs-parent="#accordionItem">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_res_Device"></div> <!-- статистика устройств -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading05">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse05" aria-expanded="true" aria-controls="collapse05">
+                                                                Статистика стран
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse05" class="accordion-collapse collapse" aria-labelledby="heading05" data-bs-parent="#accordionItem">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_res_Country"></div> <!-- статистика стран -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading4">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
+                                                СТАТИСТИКА ЦЕЛЕВОЙ АУДИТОРИИ ПО ОТНОШЕНИЮ К ВНЕШНИМ РЕСУРСАМ
+                                            </button>
+                                        </h2>
+                                        <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4" data-bs-parent="#accordion">
+                                            <div class="accordion-body">
+                                                <!-- статистика целевой аудитории по отношению к внешним ресурсам-->
+                                                <div class="accordion" id="accordionItem2">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading011">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse011" aria-expanded="true" aria-controls="collapse011">
+                                                                Статистика разрешения экрана
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse011" class="accordion-collapse collapse" aria-labelledby="heading011" data-bs-parent="#accordionItem2">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_ref_ScResolution"></div> <!-- статистика раззрешения экрана -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading012">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse012" aria-expanded="true" aria-controls="collapse012">
+                                                                Статистика браузеров
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse012" class="accordion-collapse collapse" aria-labelledby="heading012" data-bs-parent="#accordionItem2">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_ref_browser"></div> <!-- статистика браузеров -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading013">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse013" aria-expanded="true" aria-controls="collapse013">
+                                                                Статистика операционных систем
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse013" class="accordion-collapse collapse" aria-labelledby="heading013" data-bs-parent="#accordionItem2">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_ref_OS"></div> <!-- статистика операционных системы -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading014">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse014" aria-expanded="true" aria-controls="collapse014">
+                                                                Статистика устройств
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse014" class="accordion-collapse collapse" aria-labelledby="heading014" data-bs-parent="#accordionItem2">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_ref_Device"></div> <!-- статистика устройств -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading015">
+                                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse015" aria-expanded="true" aria-controls="collapse015">
+                                                                Статистика стран
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapse015" class="accordion-collapse collapse" aria-labelledby="heading015" data-bs-parent="#accordionItem2">
+                                                            <div class="accordion-body">
+                                                                <div id="audience_ref_Country"></div> <!-- статистика стран -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /CHARTS -->
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+
+
+<div th:fragment="scriptInclude">
+    <script src="/app/analytics.js"></script>
+    <script th:inline="javascript">
+    updateFilter([[${funcInfo}]]);
+    </script>
+</div>
+
+<!-- MODAL -->
+<div th:fragment="simplyModalBody">
+    Имя файла: <input class="form2" type="text" id="fileName" th:value="@{'report_' + ${domain} + '_' + ${currentDate}}">
+    <button class="btn btn-primary w-auto" th:onclick="@{'createReport(' + ${siteId} + ');'}">Создать отчёт</button>
+</div>
+<div th:fragment="simplyModalTitle">Создание отчёта</div>
+<!-- /MODAL -->
+
+</html>

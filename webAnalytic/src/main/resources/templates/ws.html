@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      th:include="/layouts/layout::page">
+
+<title id="title">Аналитика</title>
+
+<div th:fragment="headerTitle"><h1>Аналитика</h1></div>
+
+<div th:fragment="menu">
+    <div th:if="${userAuth.isAdmin}">
+        <hr>
+        <div class="formBlock mt-3 text-white ps-2 pe-2">
+            <div class="title">
+                <h5>Добавить веб-сайт</h5>
+            </div>
+
+            <form th:action="@{/websiteManagement/add}" th:object="${newWebSite}" th:method="POST">
+                <div class="mb-3">
+                    <input type="text" class="form" th:field="*{domain}" placeholder="Адрес веб-сайта">
+                </div>
+
+                <div class="alert alert-danger" th:if="${#fields.hasErrors('domain')}" th:errors="*{domain}"></div>
+
+                <div class="btnBlock">
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div th:fragment="contentCenter"></div>
+<div th:fragment="content">
+    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <br>
+    <div class="mainTable">
+        <table class="table" id="tableSite">
+            <thead>
+            <tr>
+                <th colspan="4">Список адресов веб-сайтов</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="site:${webSiteList}">
+                <tr>
+                    <td width="85%">
+                        <a th:href="@{'/websiteManagement/analytics?siteId=' + ${site.id}}"
+                           th:text="${site.domain}"></a>
+                    </td>
+
+                    <td width="5%" class="text-center admin">
+                        <button class="btn" data-bs-toggle="modal" data-bs-target="#simplyModal"
+                           th:onclick="@{'generateCode(' + ${site.id}+')'}">
+                            <i class="fas fa-code" aria-hidden="true"></i></button>
+                    </td>
+
+                    <td th:if="${userAuth.isAdmin}" width="5%" class="text-center admin">
+                        <button class="btn" data-bs-toggle="modal" data-bs-target="#simplyModal"
+                           th:onclick="@{'loadUserList('+${site.id}+')'}" >
+                            <i class="fas fa-user" aria-hidden="true"></i></button>
+                    </td>
+
+                    <td th:if="${userAuth.isAdmin}"  width="5%" class="text-center admin">
+                        <form th:action="@{'/websiteManagement/delete'}" th:method="delete">
+                            <input type="hidden" name="siteId" th:value="${site.id}">
+                            <button class="btn" type="submit">
+                                <i class="fas fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
+
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:fragment="additionally"></div>
+
+<!-- MODAL -->
+<div th:fragment="simplyModalBody"></div>
+<div th:fragment="simplyModalTitle"></div>
+<!-- /MODAL -->
+
+<div th:fragment="scriptInclude">
+    <script src="/app/wsManagement.js"></script>
+</div>
+
+</html>

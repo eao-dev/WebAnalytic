@@ -1,0 +1,45 @@
+@startuml
+
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.Report.ReportMapper
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.Report.ReportMapperWithoutSource
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.UserMapper
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.VisitMapper
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.VisitorMapper
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.WebSiteMapper
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.ResourceMapper
+
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.AccessUserWebSite.AccessUserWebSiteJoinMapper
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.AccessUserWebSite.AccessUserWebSiteMapper
+
+class com.webAnalytic.Entity.Mapper.Report.ReportMapper{
++ com.webAnalytic.Entity.Report map (ResultSet )
+}
+interface com.webAnalytic.Entity.Mapper.IMapper {
++ T map (ResultSet )
+}
+com.webAnalytic.Entity.Mapper.IMapper <|.. com.webAnalytic.Entity.Mapper.Report.ReportMapper
+class com.webAnalytic.Entity.Mapper.Report.ReportMapperWithoutSource{
++ com.webAnalytic.Entity.Report map (ResultSet )
+}
+class com.webAnalytic.Entity.Mapper.UserMapper{
++ com.webAnalytic.Entity.User map (ResultSet )
+}
+class com.webAnalytic.Entity.Mapper.VisitMapper{
++ com.webAnalytic.Entity.Visit map (ResultSet )
+}
+class com.webAnalytic.Entity.Mapper.AccessUserWebSite.AccessUserWebSiteMapper{
++ com.webAnalytic.Entity.AccessUserWebSite map (ResultSet )
+}
+class com.webAnalytic.Entity.Mapper.AccessUserWebSite.AccessUserWebSiteJoinMapper{
++ com.webAnalytic.Entity.AccessUserWebSite map (ResultSet )
+}
+class com.webAnalytic.Entity.Mapper.VisitorMapper{
++ com.webAnalytic.Entity.Visitor map (ResultSet )
+}
+class com.webAnalytic.Entity.Mapper.WebSiteMapper{
++ com.webAnalytic.Entity.WebSite map (ResultSet )
+}
+class com.webAnalytic.Entity.Mapper.ResourceMapper{
++ com.webAnalytic.Entity.Resource map (ResultSet )
+}
+@enduml 

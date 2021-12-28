@@ -16,7 +16,6 @@ public class User {
 
     @NotNull
     @NotEmpty
-    @Pattern(regexp="^[а-яА-ЯёЁa-zA-Z]+$", message = "Имя должно содеражть только латиницу и кирилицу.")
     private String name;
 
     @NotNull

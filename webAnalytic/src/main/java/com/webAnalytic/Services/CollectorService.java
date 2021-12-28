@@ -10,12 +10,11 @@ import com.webAnalytic.Entity.WebSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseBody;
 import ua_parser.Parser;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -25,30 +24,32 @@ import java.util.Base64;
 @Service
 public class CollectorService {
 
-    @Autowired
     private final DAO<Resource> resourceDAO;
 
-    @Autowired
     private final VisitorDAO visitorDAO;
 
-    @Autowired
     private final DAO<Visit> visitDAO;
 
-    @Autowired
     private final DAO<WebSite> webSiteDAO;
 
-    //    @Value("${dbGeoIP}")
-    private String dbGeoIP = "GeoLite2-country.mmdb"; // todo: fix it => spring не находит значение.
+    private DatabaseReader dbReader;
 
-    private final File database = new File(dbGeoIP);
-    private final DatabaseReader dbReader = new DatabaseReader.Builder(database).build();
+    @Value("${dbGeoIP}")
+    private String dbGeoIP;
 
+    @Autowired
     public CollectorService(DAO<Resource> resourceDAO, VisitorDAO visitorDAO, DAO<Visit> visitDAO,
-                            DAO<WebSite> webSiteDAO) throws IOException {
+                            DAO<WebSite> webSiteDAO) {
         this.resourceDAO = resourceDAO;
         this.visitorDAO = visitorDAO;
         this.visitDAO = visitDAO;
         this.webSiteDAO = webSiteDAO;
+    }
+
+    @PostConstruct
+    void connectToGeoIpDb() throws IOException {
+        File database = new File(dbGeoIP);
+        dbReader = new DatabaseReader.Builder(database).build();
     }
 
     @PreDestroy
@@ -81,21 +82,19 @@ public class CollectorService {
      * @param page      - visited page;
      * @param scr       - screen resolution;
      */
-    public boolean addVisit(String uid, long webSiteId, String userAgent, String ip,
-                            String referer, String page, String scr, HttpServletResponse response) throws Exception {
+    public long addVisit(Long uid, long webSiteId, String userAgent, String ip,
+                            String referer, String page, String scr) throws Exception {
 
+        long ret=0;
         // Get visitor
         Visitor visitor;
-        if (!uid.isEmpty()) {
-            visitor = visitorDAO.getById(Long.parseLong(uid));
-            if (visitor == null)
-                return false;
-        } else { // This is new visitor. Add to DB
+        visitor = visitorDAO.getById(uid);
+
+        if (visitor == null) { // This is new visitor. Add to DB
             visitor = new Visitor();
 
             var clientInfo = new Parser().parse(userAgent);
 
-            visitor.setIp(ip.getBytes());
             visitor.setCountry(getCountry(ip));
 
             visitor.setScResolution(new String(Base64.getDecoder().decode(scr)));
@@ -111,14 +110,10 @@ public class CollectorService {
 
             // Add new visitor to DB
             if (!visitorDAO.createWithLastInsertedId(visitor)) // here the identifier will be assigned to the object
-                return false;
+                return -1;
 
-            // Set cookie
-            var cookie = new Cookie("uid", Long.toString(visitor.getId()));
-            cookie.setPath("/");
-            cookie.setSecure(false);
-            response.addCookie(cookie);
-            response.addHeader("Access-Control-Allow-Credentials", "true");
+            // UID for new user
+            ret = visitor.getId();
         }
 
         // Add new visit to DB
@@ -127,6 +122,8 @@ public class CollectorService {
         String refererDecoded = "";
         if (!referer.isEmpty())
             refererDecoded = new String(Base64.getDecoder().decode(referer));
+        else
+            refererDecoded = "Open";
 
         // Set visited page
         String pageDecoded = "";
@@ -137,7 +134,7 @@ public class CollectorService {
         WebSite webSite = webSiteDAO.getById(webSiteId);
 
         if (webSite == null)
-            return false;
+            return -1;
 
         // Create target resource
         Resource resource = resourceDAO.getByObject(new Resource(webSite, pageDecoded));
@@ -145,14 +142,16 @@ public class CollectorService {
             resource = new Resource(webSite, pageDecoded);
             // Add target resource
             if (!resourceDAO.create(resource))
-                return false;
+                return -1;
         }
 
         // Create visit
         Visit visit = new Visit(refererDecoded, resource, visitor);
 
         // Add visit
-        return visitDAO.create(visit);
+        if  (!visitDAO.create(visit))
+            return -1;
 
+        return ret;
     }
 }

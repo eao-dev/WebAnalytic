@@ -27,16 +27,18 @@ public class ReportController extends BaseController {
     }
 
     @GetMapping
-    public String main(Model model, @ModelAttribute("userAuth") User userAuth) throws Exception {
+    public String main(Model model) throws Exception {
+        var userAuth = authCurrentUser();
+        model.addAttribute("userAuth", userAuth);
         model.addAttribute("reportsList", reportService.getListForUser(userAuth.getId()));
         return "/reports";
     }
 
     @DeleteMapping("delete")
     public String delete(RedirectAttributes redirectAttributes,
-                         @ModelAttribute("userAuth") User userAuth,
                          @RequestParam(name = "reportId") long reportId) {
 
+        var userAuth = authCurrentUser();
         if (reportService.removeReport(userAuth.getId(), reportId))
             redirectAttributes.addFlashAttribute("success", "Отчёт успешно удалён!");
         else
@@ -46,9 +48,10 @@ public class ReportController extends BaseController {
     }
 
     @GetMapping("download")
-    public ResponseEntity<Resource> download(@ModelAttribute("userAuth") User userAuth,
-                                             @RequestParam(name = "reportId") long reportId) {
+    public ResponseEntity<Resource> download(Model model, @RequestParam(name = "reportId") long reportId) {
 
+        var userAuth = authCurrentUser();
+        model.addAttribute("userAuth", userAuth);
         var out = reportService.getSourceReport(userAuth.getId(), reportId);
 
         return ResponseEntity.ok()
@@ -66,9 +69,9 @@ public class ReportController extends BaseController {
     @PostMapping("add")
     @ResponseBody
     public ResponseEntity add(@RequestParam(name = "fileName") String fileName,
-                              @RequestParam(name = "reportSource") String reportSource,
-                              @ModelAttribute("userAuth") User userAuth) throws Exception {
+                              @RequestParam(name = "reportSource") String reportSource) throws Exception {
 
+        var userAuth = authCurrentUser();
         if (!reportService.addReport(userAuth.getId(), fileName, reportSource.getBytes()))
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 

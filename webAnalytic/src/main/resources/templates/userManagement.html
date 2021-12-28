@@ -86,7 +86,7 @@
 
 <!-- MODAL -->
 <div th:fragment="simplyModalBody">
-    <form th:action='@{/userManagement/edit}' th:method='patch'>
+    <form th:action='@{/userManagement/edit}' th:method='put'>
         <input type="hidden" name="userId" value="" id="userIdModal">
         <input type='text' name='name' class='form-control' placeholder='Новое имя...'><br>
         <input type='password' name='password' class='form-control'

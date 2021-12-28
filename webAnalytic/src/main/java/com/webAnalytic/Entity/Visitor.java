@@ -8,26 +8,23 @@ public class Visitor {
     private long id;
 
     @Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9-_.]{1,10}$\n")
-    private String  country;
+    private String country;
 
     private String Browser;
     private String OS;
     private String Device;
     private String ScResolution;
 
-    private byte[] ip;
-
     private Date dateReg;
 
     public Visitor(long id, @Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9-_.]{1,10}$\n") String country,
-                   String browser, String OS, String device, String scResolution, byte[] ip, Date dateReg) {
+                   String browser, String OS, String device, String scResolution, Date dateReg) {
         this.id = id;
         this.country = country;
         Browser = browser;
         this.OS = OS;
         Device = device;
         ScResolution = scResolution;
-        this.ip = ip;
         this.dateReg = dateReg;
     }
 
@@ -56,14 +53,6 @@ public class Visitor {
 
     public String getCountry() {
         return country;
-    }
-
-    public void setIp(byte[] ip) {
-        this.ip = ip;
-    }
-
-    public byte[] getIp() {
-        return ip;
     }
 
     public Date getDateReg() {

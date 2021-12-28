@@ -35,12 +35,11 @@ public class WebSiteService {
      */
     public boolean create(WebSite webSite, User admin) throws Exception {
         webSite.setAdmin(admin);
-        boolean addResult = webSiteDAO.createWithLastInsertedId(webSite); // TODO: set comment
+        boolean addResult = webSiteDAO.createWithLastInsertedId(webSite);
 
         if (addResult) {
-            if (!onlineStatService.addSite(webSite.getId())) {
-                // todo: log error-message
-            }
+            if (!onlineStatService.addSite(webSite.getId()))
+                System.out.println("Error: not added web-site to online-stat!");
         }
 
         return addResult;

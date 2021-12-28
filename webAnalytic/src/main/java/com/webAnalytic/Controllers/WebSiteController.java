@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
-@RequestMapping("websiteManagement")
+@RequestMapping("/")
 public class WebSiteController extends BaseController {
 
     private final AnalyzeService statisticService;
@@ -38,45 +38,57 @@ public class WebSiteController extends BaseController {
     }
 
     @GetMapping()
-    public String websiteList(Model model,
-                              @ModelAttribute("newWebSite") WebSite newWebSite,
-                              @ModelAttribute("userAuth") User userAuth) throws Exception {
+    public String websiteList(Model model) throws Exception {
+        var userAuth = authCurrentUser();
         model.addAttribute("userAuth", userAuth);
+
+        if (model.getAttribute("newWebSite") == null)
+            model.addAttribute("newWebSite", new WebSite());
+
         model.addAttribute("webSiteList", webSiteService.getWebSiteList(userAuth));
         return "/ws";
     }
 
     @PostMapping("add")
-    public String add(RedirectAttributes redirectAttributes, @Valid WebSite newWebSite, BindingResult br,
-                      @ModelAttribute("userAuth") User userAuth) throws Exception {
+    public String add(RedirectAttributes redirectAttributes,
+                      @ModelAttribute("newWebSite") @Valid WebSite newWebSite, BindingResult br)
+            throws Exception {
 
         if (br.hasErrors()) {
-            return "redirect:/websiteManagement"; // todo: fix it
+            redirectBindingResults(redirectAttributes, new PairObjectBr("newWebSite", newWebSite, br));
+            return "redirect:/";
         }
 
+        var userAuth = authCurrentUser();
         if (webSiteService.create(newWebSite, userAuth))
             redirectAttributes.addFlashAttribute("success", "Веб-сайт добавлен!");
         else
             redirectAttributes.addFlashAttribute("error", "Ошибка добавления веб-сайта!");
 
-        return "redirect:/websiteManagement";
+        return "redirect:/";
     }
 
     @DeleteMapping("delete")
     public String delete(RedirectAttributes redirectAttributes,
-                         @RequestParam(name = "siteId") long siteId,
-                         @ModelAttribute("userAuth") User userAuth) throws Exception {
+                         @RequestParam(name = "siteId") long siteId) throws Exception {
 
+        var userAuth = authCurrentUser();
         if (webSiteService.delete(userAuth.getId(), siteId))
-            redirectAttributes.addFlashAttribute("success", "Веб-сайт успушно удалён!");
+            redirectAttributes.addFlashAttribute("success", "Веб-сайт успешно удалён!");
         else
             redirectAttributes.addFlashAttribute("error", "Ошибка удаления веб-сайта!");
 
-        return "redirect:/websiteManagement";
+        return "redirect:/";
     }
 
     @GetMapping("analytics")
     public String analytics(Model model, @RequestParam(name = "siteId") long siteId) throws Exception {
+        var userAuth = authCurrentUser();
+
+        if (!userService.hasAccess(siteId, userAuth.getId()))
+            throw new RuntimeException("Error: 403, Forbidden!");
+
+        model.addAttribute("userAuth", userAuth);
         model.addAttribute("funcInfo", statisticService.getFunctionInfo().toString());
         model.addAttribute("siteId", siteId);
         model.addAttribute("currentDate", new Date());
@@ -89,17 +101,18 @@ public class WebSiteController extends BaseController {
     }
 
     @DeleteMapping("clear")
-    public String clear(RedirectAttributes redirectAttributes,
-                        @RequestParam(name = "siteId") long siteId,
-                        @ModelAttribute("userAuth") User userAuth) throws Exception {
+    public String clear(RedirectAttributes redirectAttributes, @RequestParam(name = "siteId") long siteId)
+            throws Exception {
+
         assert (siteId > 0);
 
+        var userAuth = authCurrentUser();
         if (resourceService.deleteForSite(userAuth.getId(), siteId))
-            redirectAttributes.addFlashAttribute("success", "Данные о посещениях очищены");
+            redirectAttributes.addFlashAttribute("success", "Данные о посещениях очищены!");
         else
             redirectAttributes.addFlashAttribute("error", "Ошибка удаления данных!");
 
-        return "redirect:/websiteManagement";
+        return "redirect:/";
     }
 
     /**
@@ -110,10 +123,9 @@ public class WebSiteController extends BaseController {
      */
     @RequestMapping(value = "analytics", method = RequestMethod.POST, produces = "application/json")
     @ResponseBody
-    public ResponseEntity<String> analytics(@RequestBody String filterJson,
-                                            @ModelAttribute("userAuth") User userAuth) throws Exception {
-
-        var outObject = statisticService.getStatistic(userAuth.getId(), new JSONObject(filterJson));
+    public ResponseEntity<String> analytics(@RequestBody String filterJson) throws Exception {
+        var userAuth = authCurrentUser();
+        var outObject = statisticService.getStatistic(userAuth, new JSONObject(filterJson));
         return outObject(outObject);
     }
 

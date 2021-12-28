@@ -26,7 +26,7 @@ function updateData(){
     console.log('Get analytic data');
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/websiteManagement/analytics');
+    xhr.open('POST', '/analytics');
     xhr.onreadystatechange = function() {
     if (xhr.readyState === XMLHttpRequest.DONE){
 			if(xhr.status === 200) handleJSON_DataAnalytics(xhr.response); else alert('Ошибка получения данных с сервера');

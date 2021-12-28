@@ -17,7 +17,6 @@ public class VisitorMapper implements IMapper<Visitor> {
                 resultSet.getString("OS"),
                 resultSet.getString("Device"),
                 resultSet.getString("ScResolution"),
-                resultSet.getBytes("ip"),
                 resultSet.getDate("DateReg")
         );
     }

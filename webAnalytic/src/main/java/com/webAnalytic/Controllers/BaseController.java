@@ -2,32 +2,56 @@ package com.webAnalytic.Controllers;
 
 import com.webAnalytic.Config.Security.Entity.UserDetail;
 import com.webAnalytic.Entity.User;
-import com.webAnalytic.Entity.WebSite;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Map;
+
+class PairObjectBr {
+    private final String name;
+    private final BindingResult br;
+    private final  Object object;
+
+    public BindingResult getBr() {
+        return br;
+    }
+
+    public Object getObject() {
+        return object;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public PairObjectBr(String name,Object object, BindingResult br) {
+        this.name = name;
+        this.br = br;
+        this.object = object;
+    }
+}
 
 public abstract class BaseController {
 
     protected static final String validatorPath = "org.springframework.validation.BindingResult.";
 
-    @ModelAttribute("newUser")
-    private User newUser() {
-        return new User();
-    }
+    void redirectBindingResults(RedirectAttributes redirectAttributes, PairObjectBr... pairsObjectBr) {
 
-    @ModelAttribute("newWebSite")
-    private WebSite newWebSite(){
-        return new WebSite();
+        for (var pair : pairsObjectBr) {
+            redirectAttributes.addFlashAttribute(validatorPath + pair.getName(),
+                    pair.getBr());
+            redirectAttributes.addFlashAttribute(pair.getName(), pair.getObject());
+        }
+
     }
 
     /**
      * Returns current logged-in user;
      */
-    @ModelAttribute("userAuth")
     protected User authCurrentUser() {
         Object user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -70,7 +94,7 @@ public abstract class BaseController {
         else
             out = jsonStatusObject(true, statusSuccessMsg);
 
-        return new ResponseEntity<>(out, result?httpStatusSuccess:HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(out, result ? httpStatusSuccess : HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**

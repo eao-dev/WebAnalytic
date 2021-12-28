@@ -30,23 +30,25 @@ public class UserController extends BaseController {
     }
 
     @GetMapping()
-    public String main(Model model,
-                       @ModelAttribute("userAuth") User userAuth,
-                       @ModelAttribute("newUser") User newUser) throws Exception {
+    public String main(Model model) throws Exception {
+        var userAuth = authCurrentUser();
         model.addAttribute("userList", userService.getUsersList(userAuth));
+        model.addAttribute("newUser",  new User());
+        model.addAttribute("userAuth",  userAuth);
         return "/userManagement";
     }
 
     @PostMapping("add")
     public String add(RedirectAttributes redirectAttributes,
-                      @ModelAttribute("newUser") @Valid User newUser,
+                      @ModelAttribute @Valid User newUser,
                       BindingResult br) throws Exception {
 
         if (br.hasErrors()) {
-            return "/userManagement"; // todo:fix it
+            return "/userManagement";
         }
 
-        newUser.setUserAdminId(authCurrentUser().getId());
+        var userAuth = authCurrentUser();
+        newUser.setUserAdminId(userAuth.getId());
 
         if (!userService.create(newUser, UserRole.USER))
             redirectAttributes.addFlashAttribute("error",
@@ -57,14 +59,14 @@ public class UserController extends BaseController {
         return "redirect:/userManagement";
     }
 
-    @PatchMapping("edit")
+    @PutMapping("edit")
     public String edit(RedirectAttributes redirectAttributes,
-                       @ModelAttribute("userAuth") User userAuth,
                        @RequestParam("name") String name,
                        @RequestParam("password") String password,
                        @RequestParam("userId") long userId
     ) throws Exception {
 
+        var userAuth = authCurrentUser();
         if (userService.updateUser(userAuth.getId(), userId, name, password))
             redirectAttributes.addFlashAttribute("success", "Данные успешно обновлены!");
         else
@@ -75,12 +77,12 @@ public class UserController extends BaseController {
 
     @DeleteMapping("delete")
     public String delete(RedirectAttributes redirectAttributes,
-                         @ModelAttribute("userAuth") User userAuth,
                          @RequestParam(name = "userId") long userId)
             throws Exception {
 
         assert (userId > 0);
 
+        var userAuth = authCurrentUser();
         if (!userService.deleteByID(userAuth.getId(), userId))
             redirectAttributes.addFlashAttribute("error", "Ошибка удаления пользователя!");
         else
@@ -92,18 +94,17 @@ public class UserController extends BaseController {
     /**
      * Assignment of rights to a user to access the site; returns JSON-object contain status for current action;
      *
-     * @param userAuth - current logged-in user;
      * @param userId   - id of user;
      * @param siteId   - id of website;
      */
-    @PatchMapping("changePermissionSiteAccess")
+    @PutMapping("changePermissionSiteAccess")
     @ResponseBody
-    public ResponseEntity<String> changePermissionSiteAccess(@ModelAttribute("userAuth") User userAuth,
-                                                             @RequestParam(name = "userId") long userId,
+    public ResponseEntity<String> changePermissionSiteAccess(@RequestParam(name = "userId") long userId,
                                                              @RequestParam(name = "siteId") long siteId,
                                                              @RequestParam(name = "state") boolean state
     ) throws Exception {
 
+        var userAuth = authCurrentUser();
         boolean status;
         if (state)
             status = accessWebSiteService.setAccess(userAuth.getId(), userId, siteId);
@@ -116,13 +117,13 @@ public class UserController extends BaseController {
     /**
      * Returns JSON-object contain users with permissions to the site;
      *
-     * @param userAuth - current logged-in user;
      * @param siteId   - id of website;
      */
     @GetMapping("getPermission")
     @ResponseBody
-    public ResponseEntity<String> getPermissionUserSite(@ModelAttribute("userAuth") User userAuth,
-                                                        @RequestParam(name = "siteId") long siteId) throws Exception {
+    public ResponseEntity<String> getPermissionUserSite(@RequestParam(name = "siteId") long siteId) throws Exception {
+
+        var userAuth = authCurrentUser();
         var out = accessWebSiteService.usersListWithPermissions(userAuth, siteId);
         return outObject(out);
     }

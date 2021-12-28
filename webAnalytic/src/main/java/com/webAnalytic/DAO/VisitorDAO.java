@@ -35,12 +35,12 @@ public class VisitorDAO implements DAO<Visitor> {
 
     public boolean createWithLastInsertedId(Visitor visitor) {
         assert (visitor != null);
-        String sqlQuery = "insert into [Visitor] (Country, Browser, OS, Device, ip, ScResolution) values (?,?,?,?,?,?)";
+        String sqlQuery = "insert into [Visitor] (Country, Browser, OS, Device, ScResolution) values (?,?,?,?,?)";
         ArrayList<Long> arrayListInserted = new ArrayList<>();
 
         if (jdbcLayer.update(sqlQuery, arrayListInserted, "id", visitor.getCountry(),
                 visitor.getBrowser(), visitor.getOS(),
-                visitor.getDevice(), visitor.getIp(), visitor.getScResolution()) == 0)
+                visitor.getDevice(), visitor.getScResolution()) == 0)
             return false;
 
         visitor.setId(arrayListInserted.stream().findFirst().orElse(0L));

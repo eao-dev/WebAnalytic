@@ -1,7 +1,8 @@
 package com.webAnalytic.Services.Analyze;
 
-import com.webAnalytic.Services.AnalyzeModules.AnalyzeModule;
 import com.webAnalytic.DAO.JDBCLayer;
+import com.webAnalytic.Entity.User;
+import com.webAnalytic.Services.AnalyzeModules.AnalyzeModule;
 import com.webAnalytic.Services.OnlineStatService;
 import com.webAnalytic.Services.UserService;
 import org.json.JSONObject;
@@ -9,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -77,24 +76,24 @@ public class AnalyzeService {
     /**
      * Returns JSON-object contains statistic about site using StatisticModule1;
      *
+     * @param user   - user which has access to the data-analytics;
      * @param filter - JSON object contains parameters which need to be returned;
      * @return {@link JSONObject}
      */
-    public JSONObject getStatistic(long ownerSiteId, JSONObject filter) throws Exception {
+    public JSONObject getStatistic(User user, JSONObject filter) throws Exception {
 
         long siteId = filter.getInt("siteId");
 
-        // TODO: реализовать проверку доступа
+        if (!userService.hasAccess(siteId, user.getId()))
+            return null;
 
-//        if (!userService.isOwnerWebSite(ownerSiteId, siteId))
-//            return null;
+        // Including the upper border
+        final String dateToFromFilterStr = filter.getString("dateTo");
+        var dateTo = Date.valueOf(LocalDate.parse(dateToFromFilterStr).plusDays(1).toString());
 
-        // todo: set note (временной дипазаон +1 день)
-        String dateToFromFilterStr = filter.getString("dateTo");
-        var dateTo =  Date.valueOf(LocalDate.parse(dateToFromFilterStr).plusDays(1).toString());
+        var dateFrom = Date.valueOf(filter.getString("dateFrom"));
 
-        AnalyzeModule analyzeModule = new AnalyzeModule(jdbcLayer, siteId,
-                Date.valueOf(filter.getString("dateFrom")), dateTo);
+        AnalyzeModule analyzeModule = new AnalyzeModule(jdbcLayer, siteId, dateFrom, dateTo);
 
         // General statistic object
         JSONObject generalInfoJsonObj = new JSONObject();

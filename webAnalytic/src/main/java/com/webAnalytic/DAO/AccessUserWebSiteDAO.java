@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.sql.ResultSet;
 import java.util.List;
 
 @Component
@@ -76,5 +77,23 @@ public class AccessUserWebSiteDAO implements DAO<AccessUserWebSite> {
         return jdbcLayer.update(sqlQuery, accessUserWebSite.getWebSite().getId(),
                 accessUserWebSite.getUser().getId()) == 1;
     }
+
+    public boolean userHasAccess(long webSiteId, long userId) {
+        assert (webSiteId != 0);
+        assert (userId != 0);
+
+        IMapper<Boolean> mapper = (ResultSet resultSet) -> {
+            try {
+                resultSet.getLong("webSite_id");
+            } catch (Exception ex){
+                return false;
+            }
+            return true;
+        };
+
+        String sqlQuery = "select * from [AccessUserWebSite]  where (WebSite_id=?) and (User_id=?)";
+        return jdbcLayer.select(sqlQuery, mapper, webSiteId, userId).stream().findFirst().orElse(false);
+    }
+
 
 }

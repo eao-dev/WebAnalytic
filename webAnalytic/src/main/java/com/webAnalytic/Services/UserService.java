@@ -1,7 +1,9 @@
 package com.webAnalytic.Services;
 
 import com.webAnalytic.Config.Security.Entity.UserRole;
+import com.webAnalytic.DAO.AccessUserWebSiteDAO;
 import com.webAnalytic.DAO.DAO;
+import com.webAnalytic.Entity.AccessUserWebSite;
 import com.webAnalytic.Entity.User;
 import com.webAnalytic.Entity.WebSite;
 import com.webAnalytic.Utils.Hash;
@@ -15,11 +17,13 @@ public class UserService {
 
     private final DAO<User> userDAO;
     private final DAO<WebSite> webSiteDAO;
+    private final AccessUserWebSiteDAO accessWebSiteServiceDAO;
 
     @Autowired
-    public UserService(DAO<User> userDAO, DAO<WebSite> webSiteDAO) {
+    public UserService(DAO<User> userDAO, DAO<WebSite> webSiteDAO, AccessUserWebSiteDAO accessWebSiteServiceDAO) {
         this.userDAO = userDAO;
         this.webSiteDAO = webSiteDAO;
+        this.accessWebSiteServiceDAO = accessWebSiteServiceDAO;
     }
 
     /**
@@ -42,6 +46,18 @@ public class UserService {
     public boolean isOwnerUser(long parentUserId, long childUserId) throws Exception {
         User childUser = userDAO.getById(childUserId);
         return parentUserId == childUser.getUserAdminId();
+    }
+
+    /**
+     * Returns true if user has access to the data; otherwise false.
+     *
+     * @param webSiteId - id of webSiteId;
+     * @param userId  - id of user.
+     * */
+    public boolean hasAccess(long webSiteId, long userId) throws Exception {
+        if (isOwnerWebSite(userId, webSiteId))
+            return true;
+        return accessWebSiteServiceDAO.userHasAccess(webSiteId,userId);
     }
 
     public boolean create(User user, UserRole role)

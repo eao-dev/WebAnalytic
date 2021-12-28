@@ -1,3 +1,5 @@
+let cookieUid = getCookie('uid');
+
 function sendDataToCollector() {
 
   const referer = btoa(document.referrer);
@@ -5,14 +7,26 @@ function sendDataToCollector() {
   const scr     = btoa(`${window.screen.width}x${window.screen.height}`);
 
   const xhr = new XMLHttpRequest();
-  xhr.open('POST', `${trackerAddr`}/collector);
+  xhr.open('POST', collectorAddr);
 
   let objectSend = {
     'siteId':siteId,
     'ref': referer,
     'page': page,
-    'scr': scr
+    'scr': scr,
+	'uid': cookieUid
   };
+
+  xhr.onreadystatechange = function() {
+  if (xhr.readyState === XMLHttpRequest.DONE){
+		if(xhr.status === 201) { // Added new visitor
+			// Set cookie
+			cookieUid = xhr.response;
+			document.cookie = `uid=${cookieUid};`
+			console.log(document.cookie);
+		}
+	}
+  }
 
   xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');
   let jsonSend = JSON.stringify(objectSend, null, 2);
@@ -33,7 +47,7 @@ function ping() {
 
   let objectSend = {
     'siteId':siteId,
-    'visitorId': getCookie('uid')
+	'visitorId': cookieUid
   };
 
   xhr.setRequestHeader('Content-type', 'application/json;charset=UTF-8');

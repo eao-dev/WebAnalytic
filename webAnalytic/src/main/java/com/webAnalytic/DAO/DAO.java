@@ -22,4 +22,5 @@ public interface DAO<T> {
     // Delete
     default boolean deleteByObject(T object) throws Exception{throw new Exception(notImplementedExceptionMessage);}
     default boolean deleteById(long id) throws Exception{throw new Exception(notImplementedExceptionMessage);}
+
 }

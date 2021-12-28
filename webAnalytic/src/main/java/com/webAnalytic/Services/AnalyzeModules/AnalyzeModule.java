@@ -41,9 +41,16 @@ public class AnalyzeModule {
     }
 
     private long getLongParamFromScalarFunc(final String funcName) {
-        assert(funcName!=null && !funcName.isEmpty());
+        assert (funcName != null && !funcName.isEmpty());
 
-        IMapper<Long> handler = (ResultSet resultSet) -> resultSet.getLong("");
+        IMapper<Long> handler = (ResultSet resultSet) -> {
+            long ret = 0L;
+            try {
+                ret = resultSet.getLong("");
+            } catch (Exception ex) {
+            }
+            return ret;
+        };
 
         String sqlQuery = String.format("select %s(?,?,?)", funcName);
 
@@ -55,11 +62,18 @@ public class AnalyzeModule {
     }
 
     private JSONObject getArrayIncludeObject_2columns(final String funcName, final String column1, final String column2) {
-        assert(funcName!=null && !funcName.isEmpty());
+        assert (funcName != null && !funcName.isEmpty());
 
         IMapper<Map<String, Long>> handler = (ResultSet resultSet) -> {
             Map<String, Long> ret = new HashMap<>();
-            ret.put(resultSet.getString(column1), resultSet.getLong(column2));
+
+            String c1 = resultSet.getString(column1);
+            long c2 = resultSet.getLong(column2);
+
+            if (c1 == null)
+                c1 = "";
+
+            ret.put(c1, c2);
             return ret;
         };
 
@@ -71,31 +85,34 @@ public class AnalyzeModule {
         if (listObject == null)
             return retJsonObject;
 
-        for (var mapItem : listObject){
-            for (var pair : mapItem.entrySet()){
-                // todo: костыль
-                String key = pair.getKey();
-                if (key==null)
-                    key="";
-
-                retJsonObject.put(key, pair.getValue());
-            }
+        for (var mapItem : listObject) {
+            for (var pair : mapItem.entrySet())
+                retJsonObject.put(pair.getKey(), pair.getValue());
         }
 
         return retJsonObject;
     }
 
     private JSONObject getArrayIncludeObject_3columns(final String funcName, final String column1,
-                                                     final String column2, final String column3) {
+                                                      final String column2, final String column3) {
 
         Map<String, List<JSONObject>> resultMap = new HashMap<>();
 
         IMapper mapper = (ResultSet resultSet) -> {
-            var keyParam = resultSet.getString(column1);
+            String c1 = resultSet.getString(column1);
+            String c2 = resultSet.getString(column2);
+            long c3 = resultSet.getLong(column3);
+
+            if (c1 == null)
+                c1 = "";
+            if (c2 == null)
+                c2 = "";
+
+            var keyParam = c1;
             resultMap.putIfAbsent(keyParam, new ArrayList<>());
 
             JSONObject includedObject = new JSONObject();
-            includedObject.put(String.valueOf(resultSet.getString(column2)), resultSet.getLong(column3));
+            includedObject.put(c2, c3);
 
             var cortage = resultMap.get(keyParam);
             cortage.add(includedObject);
@@ -107,20 +124,15 @@ public class AnalyzeModule {
         jdbcLayer.select(sqlQuery, mapper, dateFrom, dateTo, webSiteId);
 
         JSONObject outObject = new JSONObject();
-        for (var it: resultMap.entrySet()){
+        for (var it : resultMap.entrySet()) {
 
             JSONObject objectArray = new JSONObject();
-            for (var object: it.getValue()){
-                for (var key:object.keySet())
+            for (var object : it.getValue()) {
+                for (var key : object.keySet())
                     objectArray.put(key, object.get(key));
             }
 
-            // todo: костыль
-            String key = it.getKey();
-            if (key==null)
-                key="";
-
-            outObject.put(key, objectArray);
+            outObject.put(it.getKey(), objectArray);
         }
 
         return outObject;
@@ -149,11 +161,11 @@ public class AnalyzeModule {
     }
 
     public JSONObject statResourceJsonArr() {
-        return getArrayIncludeObject_2columns("statResource","Page", "cnt");
+        return getArrayIncludeObject_2columns("statResource", "Page", "cnt");
     }
 
     public JSONObject statRefererJsonArr() {
-        return getArrayIncludeObject_2columns("statReferer","Referer", "cnt");
+        return getArrayIncludeObject_2columns("statReferer", "Referer", "cnt");
     }
 
     // Audience
@@ -163,7 +175,7 @@ public class AnalyzeModule {
     }
 
     public JSONObject audienceStatOSJsonArr() {
-        return getArrayIncludeObject_2columns("statOS", "OS","cnt");
+        return getArrayIncludeObject_2columns("statOS", "OS", "cnt");
     }
 
     public JSONObject audienceStatDeviceJsonArr() {
@@ -185,19 +197,19 @@ public class AnalyzeModule {
     }
 
     public JSONObject audienceResStatOSJsonObj() {
-        return getArrayIncludeObject_3columns("statResOS", "page","OS", "cnt");
+        return getArrayIncludeObject_3columns("statResOS", "page", "OS", "cnt");
     }
 
     public JSONObject audienceResStatDeviceJsonObj() {
-        return getArrayIncludeObject_3columns("statResDevice", "page","Device", "cnt");
+        return getArrayIncludeObject_3columns("statResDevice", "page", "Device", "cnt");
     }
 
     public JSONObject audienceResStatScResolutionJsonObj() {
-        return getArrayIncludeObject_3columns("statResScResolution", "page","ScResolution", "cnt");
+        return getArrayIncludeObject_3columns("statResScResolution", "page", "ScResolution", "cnt");
     }
 
     public JSONObject audienceResStatCountryJsonObj() {
-        return getArrayIncludeObject_3columns("statResCountry", "page","Country", "cnt");
+        return getArrayIncludeObject_3columns("statResCountry", "page", "Country", "cnt");
     }
 
     // Audience referer
@@ -207,19 +219,19 @@ public class AnalyzeModule {
     }
 
     public JSONObject audienceRefStatOSJsonObj() {
-        return getArrayIncludeObject_3columns("statRefOS", "Referer","OS", "cnt");
+        return getArrayIncludeObject_3columns("statRefOS", "Referer", "OS", "cnt");
     }
 
     public JSONObject audienceRefStatDeviceJsonObj() {
-        return getArrayIncludeObject_3columns("statRefDevice", "Referer","Device", "cnt");
+        return getArrayIncludeObject_3columns("statRefDevice", "Referer", "Device", "cnt");
     }
 
     public JSONObject audienceRefStatScResolutionJsonObj() {
-        return getArrayIncludeObject_3columns("statRefScResolution", "Referer","ScResolution", "cnt");
+        return getArrayIncludeObject_3columns("statRefScResolution", "Referer", "ScResolution", "cnt");
     }
 
     public JSONObject audienceRefStatCountryJsonObj() {
-        return getArrayIncludeObject_3columns("statRefCountry", "Referer","Country", "cnt");
+        return getArrayIncludeObject_3columns("statRefCountry", "Referer", "Country", "cnt");
     }
 
     public List<String> dateRange() {
@@ -229,8 +241,10 @@ public class AnalyzeModule {
             var minDate = resultSet.getDate("min");
             var maxDate = resultSet.getDate("max");
             String outMinDate, outMaxDate;
-            if (minDate==null) outMinDate = ""; else outMinDate = minDate.toString();
-            if (maxDate==null) outMaxDate = ""; else outMaxDate = maxDate.toString();
+            if (minDate == null) outMinDate = "";
+            else outMinDate = minDate.toString();
+            if (maxDate == null) outMaxDate = "";
+            else outMaxDate = maxDate.toString();
 
             outResult.add(outMinDate);
             outResult.add(outMaxDate);

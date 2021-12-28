@@ -6,6 +6,7 @@ import com.webAnalytic.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -28,40 +29,43 @@ public class AccountController extends BaseController {
     }
 
     @GetMapping()
-    public String account() {
+    public String account(Model model) {
+        var userAuth = authCurrentUser();
+        model.addAttribute("userAuth", userAuth);
         return "/account";
     }
 
     @GetMapping("registration")
-    public String registration(@ModelAttribute("newUser") User newUser) {
+    public String registration(Model model) {
+        if (model.getAttribute("newUser") == null)
+            model.addAttribute("newUser", new User());
         return "/registration";
     }
 
     @PostMapping("registration")
     public String registration(RedirectAttributes redirectAttributes, @ModelAttribute("newUser") @Valid User newUser,
-                               BindingResult br)
-            throws Exception {
+                               BindingResult br) throws Exception {
 
         if (br.hasErrors()) {
-            return "redirect:/registration"; // TODO:fix it
+            redirectBindingResults(redirectAttributes, new PairObjectBr("newUser", newUser, br));
+            return "redirect:registration";
         }
 
         if (!userService.create(newUser, UserRole.ADMIN)) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Ошибка регистрации! Возможно такой пользователь уже существует!");
-            return "redirect:/registration";
+            redirectAttributes.addFlashAttribute("error", "Ошибка регистрации!");
+            return "redirect:registration";
         }
 
-        return "redirect:/login";
+        return "redirect:/";
     }
 
 
-    @PatchMapping("edit")
+    @PutMapping("edit")
     public String edit(RedirectAttributes redirectAttributes, @ModelAttribute("userAuth") User userAuth,
                        @RequestParam("name") String name, @RequestParam("password") String password
     ) throws Exception {
 
-        if (userService.updateMySelf(userAuth.getId(), name, password))
+        if (userService.updateMySelf(authCurrentUser().getId(), name, password))
             redirectAttributes.addFlashAttribute("success", "Данные успешно обновлены!");
         else
             redirectAttributes.addFlashAttribute("error", "Ошибка обновления!");
@@ -70,12 +74,12 @@ public class AccountController extends BaseController {
     }
 
     @DeleteMapping("delete")
-    public String delete(RedirectAttributes redirectAttributes, @ModelAttribute("userAuth") User userAuth)
+    public String delete(RedirectAttributes redirectAttributes)
             throws Exception {
 
-        if (userService.deleteMySelf(userAuth.getId())) {
+        if (userService.deleteMySelf(authCurrentUser().getId())) {
             SecurityContextHolder.clearContext();
-            return "redirect:/login";
+            return "redirect:/";
         } else
             redirectAttributes.addFlashAttribute("error", "Не удалось удалить учётную запись!");
 

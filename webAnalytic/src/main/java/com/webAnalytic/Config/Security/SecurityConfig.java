@@ -83,21 +83,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @PostConstruct
     private void setPermissions() {
+
         initRoles();
 
+        // TODO: fix it;
+
         // Admin
-        addPermissionRole(UserRole.ADMIN,
-                "/account/**",
-                "/userManagement/**",
-                "/websiteManagement/add**",
-                "/websiteManagement/remove**",
-                "/websiteManagement/clearStat**");
+//        addPermissionRole(UserRole.ADMIN,"/**");
 
         // User
-        addPermissionRole(UserRole.USER,
-                "/webSiteManagement/",
-                "/webSiteManagement/statistic**",
-                "/analytics.js");
+//        addPermissionRole(UserRole.USER,"/**");
 
         // Anonymous
         addPermissionAnonymous("/account/registration**");

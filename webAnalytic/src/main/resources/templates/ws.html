@@ -15,7 +15,7 @@
                 <h5>Добавить веб-сайт</h5>
             </div>
 
-            <form th:action="@{/websiteManagement/add}" th:object="${newWebSite}" th:method="POST">
+            <form th:action="@{/add}" th:object="${newWebSite}" th:method="POST">
                 <div class="mb-3">
                     <input type="text" class="form" th:field="*{domain}" placeholder="Адрес веб-сайта">
                 </div>
@@ -45,7 +45,7 @@
             <th:block th:each="site:${webSiteList}">
                 <tr>
                     <td width="85%">
-                        <a th:href="@{'/websiteManagement/analytics?siteId=' + ${site.id}}"
+                        <a th:href="@{'/analytics?siteId=' + ${site.id}}"
                            th:text="${site.domain}"></a>
                     </td>
 
@@ -62,7 +62,7 @@
                     </td>
 
                     <td th:if="${userAuth.isAdmin}"  width="5%" class="text-center admin">
-                        <form th:action="@{'/websiteManagement/delete'}" th:method="delete">
+                        <form th:action="@{'/delete'}" th:method="delete">
                             <input type="hidden" name="siteId" th:value="${site.id}">
                             <button class="btn" type="submit">
                                 <i class="fas fa-trash" aria-hidden="true"></i>

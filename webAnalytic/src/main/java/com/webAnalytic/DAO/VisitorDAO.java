@@ -5,7 +5,7 @@ import com.webAnalytic.Entity.Visitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.sql.ResultSet;
 
 @Component
 public class VisitorDAO implements DAO<Visitor> {
@@ -22,29 +22,41 @@ public class VisitorDAO implements DAO<Visitor> {
     @Override
     public Visitor getById(long id) {
         assert (id > 0);
-        String sqlQuery = "select * from [Visitor] where id=?";
+        String sqlQuery = "select Visitor.id as id, country.iso_code as country, browser.name as browser," +
+                " device.name as device, ScResolution.value as ScResolution, os.name as os, DateReg from [Visitor] " +
+                "join country on country.id=country_id " +
+                "join device on device.id=device_id " +
+                "join browser on browser.id=browser_id " +
+                "join os on os.id=os_id " +
+                "join ScResolution on ScResolution.id=ScResolution_id " +
+                "where Visitor.id=?";
         return jdbcLayer.select(sqlQuery, visitorMapper, id).stream().findFirst().orElse(null);
     }
 
     @Override
     public Visitor getByObject(Visitor visitor) {
         assert (visitor != null);
-        String sqlQuery = "select * from [Visitor] where id=?";
-        return jdbcLayer.select(sqlQuery, visitorMapper, visitor.getId()).stream().findFirst().orElse(null);
+        return getById(visitor.getId());
     }
 
     public boolean createWithLastInsertedId(Visitor visitor) {
         assert (visitor != null);
-        String sqlQuery = "insert into [Visitor] (Country, Browser, OS, Device, ScResolution) values (?,?,?,?,?)";
-        ArrayList<Long> arrayListInserted = new ArrayList<>();
+        String sqlQuery = "exec CreateVisitor ?,?,?,?,?";
 
-        if (jdbcLayer.update(sqlQuery, arrayListInserted, "id", visitor.getCountry(),
+        if (jdbcLayer.update(sqlQuery,  visitor.getCountry(),
                 visitor.getBrowser(), visitor.getOS(),
-                visitor.getDevice(), visitor.getScResolution()) == 0)
+                visitor.getScResolution(), visitor.getDevice()) == 0)
             return false;
 
-        visitor.setId(arrayListInserted.stream().findFirst().orElse(0L));
-        return (visitor.getId()>0);
+        String sqlQueryIdentity = "select @@identity";
+        IMapper<Long> mapper = (ResultSet resultSet) -> resultSet.getLong(1);
+
+        Long id = jdbcLayer.select(sqlQueryIdentity, mapper).stream().findFirst().orElse(null);
+        if (id == null)
+            return false;
+
+        visitor.setId(id);
+        return true;
     }
 
     @Override

@@ -57,7 +57,6 @@ public class WebSiteService {
 
         // Send info to onlineStat-service
         onlineStatService.deleteSite(webSiteId);
-
         return webSiteDAO.deleteById(webSiteId);
     }
 
@@ -71,9 +70,11 @@ public class WebSiteService {
     }
 
     /**
+     * Returns a list of sites for specified user.
      *
+     * @param userAuth - user for which the list of sites will be generated.
      */
-    public List<WebSite> getWebSiteList(User userAuth) throws Exception {
+    public List<WebSite> getWebSiteList(User userAuth) {
 
         if (userAuth.isAdmin())
             return webSiteDAO.listByObject(userAuth);

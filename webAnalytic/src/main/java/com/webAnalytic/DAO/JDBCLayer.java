@@ -99,6 +99,7 @@ public class JDBCLayer {
 
     public <T> List<T> select(String sqlQuery, IMapper<T> mapper, Object... args) {
         assert (connection != null);
+        assert (mapper != null);
 
         ArrayList<T> resultList = null;
 
@@ -130,7 +131,6 @@ public class JDBCLayer {
             try {
                 if (preparedStatement != null)
                     preparedStatement.close();
-
                 if (resultSet != null)
                     resultSet.close();
             } catch (Exception ex) {

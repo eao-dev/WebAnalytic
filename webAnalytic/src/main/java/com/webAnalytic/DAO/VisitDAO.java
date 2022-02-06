@@ -5,6 +5,8 @@ import com.webAnalytic.Entity.Visit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.ResultSet;
+
 @Component
 public class VisitDAO implements DAO<Visit> {
 
@@ -20,7 +22,9 @@ public class VisitDAO implements DAO<Visit> {
     @Override
     public Visit getById(long id) {
         assert (id > 0);
-        String sqlQuery = "select * from [Visit] where id = ?";
+        String sqlQuery = "select Visit.id, referer.host as referer from [Visit] " +
+                "join referer on referer.id = referer_id " +
+                "where Visit.id = ?";
         return jdbcLayer.select(sqlQuery, visitMapper, id).stream().findFirst().orElse(null);
     }
 
@@ -33,17 +37,12 @@ public class VisitDAO implements DAO<Visit> {
     @Override
     public boolean create(Visit visit) {
         assert (visit != null);
-        String sqlQuery = "insert into [Visit] (Resource_id, Visitor_id, Referer) values (?,?,?)";
-
-        String visitReferer = visit.getReferer();
-        String referer = null;
-        if (!visitReferer.isEmpty())
-            referer = visitReferer;
+        String sqlQuery = "exec CreateVisit ?,?,?";
 
         return jdbcLayer.update(sqlQuery,
-                visit.getTargetResource().getId(),
                 visit.getVisitor().getId(),
-                referer) == 1;
+                visit.getTargetResource().getId(),
+                visit.getReferer()) != 0;
     }
 
     @Override

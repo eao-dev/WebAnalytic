@@ -43,34 +43,45 @@ public class AnalyzeService {
      * Returns JSON-object contains info about analytic-functions;
      */
     public JSONObject getFunctionInfo() {
-        JSONObject funcInfo = new JSONObject();
-        funcInfo.put("onlineVisitors", "Количество  посетителей в режимер реального времени");
-        funcInfo.put("allUniqueVisitors", "Количество уникальных посетителей");
-        funcInfo.put("allCountVisitedResource", "Количество просмотренных страниц");
-        funcInfo.put("avgCountVisitedResource", "Среднее количество просмотренных страниц");
-        funcInfo.put("newVisitorCount", "Количество новых посетителей за день");
-        funcInfo.put("statVisitOnDay", "Количество посетителей в день");
-        funcInfo.put("statResource", "Статистика посещения каждой страницы");
-        funcInfo.put("statReferer", "Статистика переходов с внешних ресурсов");
+        JSONObject ret = new JSONObject();
 
-        funcInfo.put("Audience_browser", "Целевая аудитория: страна");
-        funcInfo.put("Audience_Country", "Целевая аудитория: браузеры");
-        funcInfo.put("Audience_OS", "Целевая аудитория: операционные системы");
-        funcInfo.put("Audience_Device", "Целевая аудитория: устройства");
-        funcInfo.put("Audience_ScResolution", "Целевая аудитория: разрешение экрана");
+        JSONObject general = new JSONObject();
+        JSONObject audience = new JSONObject();
+        JSONObject audienceRes = new JSONObject();
+        JSONObject audienceRef = new JSONObject();
 
-        funcInfo.put("Audience_res_browser", "Целевая аудитория(страницы): страна");
-        funcInfo.put("Audience_res_Country", "Целевая аудитория(страницы): браузеры");
-        funcInfo.put("Audience_res_OS", "Целевая аудитория(страницы): операционные системы");
-        funcInfo.put("Audience_res_Device", "Целевая аудитория(страницы): устройства");
-        funcInfo.put("Audience_res_ScResolution", "Целевая аудитория(страницы): разрешение экрана");
+        general.put("onlineVisitors", "Количество  посетителей в режиме реального времени");
+        general.put("allUniqueVisitors", "Количество уникальных посетителей");
+        general.put("allCountVisitedResource", "Количество просмотренных страниц");
+        general.put("avgCountVisitedResource", "Среднее количество просмотренных страниц");
+        general.put("newVisitorCount", "Количество новых посетителей за день");
+        general.put("statVisitOnDay", "Количество посетителей в день");
+        general.put("statResource", "Статистика посещения каждой страницы");
+        general.put("statReferer", "Статистика переходов с внешних ресурсов");
 
-        funcInfo.put("Audience_ref_browser", "Целевая аудитория(переходы): страна");
-        funcInfo.put("Audience_ref_Country", "Целевая аудитория(переходы): браузеры");
-        funcInfo.put("Audience_ref_OS", "Целевая аудитория(переходы): операционные системы");
-        funcInfo.put("Audience_ref_Device", "Целевая аудитория(переходы): устройства");
-        funcInfo.put("Audience_ref_ScResolution", "Целевая аудитория(переходы): разрешение экрана");
-        return funcInfo;
+        audience.put("Audience_browser", "Целевая аудитория: страна");
+        audience.put("Audience_Country", "Целевая аудитория: браузеры");
+        audience.put("Audience_OS", "Целевая аудитория: операционные системы");
+        audience.put("Audience_Device", "Целевая аудитория: устройства");
+        audience.put("Audience_ScResolution", "Целевая аудитория: разрешение экрана");
+
+        audienceRes.put("Audience_res_browser", "Целевая аудитория(страницы): страна");
+        audienceRes.put("Audience_res_Country", "Целевая аудитория(страницы): браузеры");
+        audienceRes.put("Audience_res_OS", "Целевая аудитория(страницы): операционные системы");
+        audienceRes.put("Audience_res_Device", "Целевая аудитория(страницы): устройства");
+        audienceRes.put("Audience_res_ScResolution", "Целевая аудитория(страницы): разрешение экрана");
+
+        audienceRef.put("Audience_ref_browser", "Целевая аудитория(переходы): страна");
+        audienceRef.put("Audience_ref_Country", "Целевая аудитория(переходы): браузеры");
+        audienceRef.put("Audience_ref_OS", "Целевая аудитория(переходы): операционные системы");
+        audienceRef.put("Audience_ref_Device", "Целевая аудитория(переходы): устройства");
+        audienceRef.put("Audience_ref_ScResolution", "Целевая аудитория(переходы): разрешение экрана");
+
+        ret.put("General", general);
+        ret.put("Audience", audience);
+        ret.put("Audience_res", audienceRes);
+        ret.put("Audience_ref", audienceRef);
+        return ret;
     }
 
     /**

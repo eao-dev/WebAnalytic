@@ -14,8 +14,6 @@ import ua_parser.Parser;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -83,9 +81,8 @@ public class CollectorService {
      * @param scr       - screen resolution;
      */
     public long addVisit(Long uid, long webSiteId, String userAgent, String ip,
-                            String referer, String page, String scr) throws Exception {
-
-        long ret=0;
+                         String referer, String page, String scr) throws Exception {
+        long ret = 0;
         // Get visitor
         Visitor visitor;
         visitor = visitorDAO.getById(uid);
@@ -116,25 +113,22 @@ public class CollectorService {
             ret = visitor.getId();
         }
 
+        // Find domain
+        WebSite webSite = webSiteDAO.getById(webSiteId);
+        if (webSite == null)
+            return -1;
+
         // Add new visit to DB
 
         // Set referer
-        String refererDecoded = "";
+        String refererDecoded = null;
         if (!referer.isEmpty())
             refererDecoded = new String(Base64.getDecoder().decode(referer));
-        else
-            refererDecoded = "Open";
 
         // Set visited page
         String pageDecoded = "";
         if (!page.isEmpty())
             pageDecoded = new String(Base64.getDecoder().decode(page));
-
-        // Find domain
-        WebSite webSite = webSiteDAO.getById(webSiteId);
-
-        if (webSite == null)
-            return -1;
 
         // Create target resource
         Resource resource = resourceDAO.getByObject(new Resource(webSite, pageDecoded));
@@ -149,7 +143,7 @@ public class CollectorService {
         Visit visit = new Visit(refererDecoded, resource, visitor);
 
         // Add visit
-        if  (!visitDAO.create(visit))
+        if (!visitDAO.create(visit))
             return -1;
 
         return ret;

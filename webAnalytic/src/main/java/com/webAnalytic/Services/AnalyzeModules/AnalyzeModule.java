@@ -44,10 +44,11 @@ public class AnalyzeModule {
         assert (funcName != null && !funcName.isEmpty());
 
         IMapper<Long> handler = (ResultSet resultSet) -> {
-            long ret = 0L;
+            long ret;
             try {
-                ret = resultSet.getLong("");
+                ret = resultSet.getLong(1);
             } catch (Exception ex) {
+                return 0L;
             }
             return ret;
         };
@@ -70,8 +71,7 @@ public class AnalyzeModule {
             String c1 = resultSet.getString(column1);
             long c2 = resultSet.getLong(column2);
 
-            if (c1 == null)
-                c1 = "";
+            if (c1 == null) c1 = "";
 
             ret.put(c1, c2);
             return ret;
@@ -98,15 +98,13 @@ public class AnalyzeModule {
 
         Map<String, List<JSONObject>> resultMap = new HashMap<>();
 
-        IMapper mapper = (ResultSet resultSet) -> {
+        IMapper<Void> mapper = (ResultSet resultSet) -> {
             String c1 = resultSet.getString(column1);
             String c2 = resultSet.getString(column2);
             long c3 = resultSet.getLong(column3);
 
-            if (c1 == null)
-                c1 = "";
-            if (c2 == null)
-                c2 = "";
+            if (c1 == null) c1 = "";
+            if (c2 == null) c2 = "";
 
             var keyParam = c1;
             resultMap.putIfAbsent(keyParam, new ArrayList<>());

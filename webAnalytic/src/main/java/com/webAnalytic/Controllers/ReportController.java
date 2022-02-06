@@ -1,6 +1,5 @@
 package com.webAnalytic.Controllers;
 
-import com.webAnalytic.Entity.User;
 import com.webAnalytic.Services.ReportService;
 import com.webAnalytic.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +67,7 @@ public class ReportController extends BaseController {
      */
     @PostMapping("add")
     @ResponseBody
-    public ResponseEntity add(@RequestParam(name = "fileName") String fileName,
+    public ResponseEntity<Void> add(@RequestParam(name = "fileName") String fileName,
                               @RequestParam(name = "reportSource") String reportSource) throws Exception {
 
         var userAuth = authCurrentUser();

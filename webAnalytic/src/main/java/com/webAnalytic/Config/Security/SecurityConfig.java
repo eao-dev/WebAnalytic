@@ -16,9 +16,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private MyAuthProvider myAuthProvider;
 
+    private final List<String> permissionsAllRoles = new ArrayList<>();
     private final List<String> permissionsAll = new ArrayList<>();
     private final List<String> permissionsAnonymous = new ArrayList<>();
-    private final Map<String, String> permissionsGroup = new HashMap<>();
+
+    private final Map<UserRole, List<String>> permissionsRoles = new HashMap<>();
+
     private final List<String> disableCSRF = new ArrayList<>();
 
     static private final Map<UserRole, String> mapRoles = new HashMap<>();
@@ -27,77 +30,88 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return mapRoles;
     }
 
-
     /**
-     * Init map which contains user-groups
+     * Init map which contains user roles.
      */
-    static void initRoles() {
-        mapRoles.put(UserRole.USER, "user");
-        mapRoles.put(UserRole.ADMIN, "admin");
+    private void initRoles() {
+        // Init arrays for URL
+        for (var role : UserRole.values()) {
+            permissionsRoles.put(role, new ArrayList<>());
+            mapRoles.put(role, role.toString());
+        }
     }
 
     /**
-     * Add permissions for any role;
+     * Add permissions for any role.
      *
      * @param role   - name of role;
-     * @param uriArr - array string contains uri;
+     * @param uriArr - array string contains URL.
      */
     private void addPermissionRole(UserRole role, String... uriArr) {
-        String groupStr = mapRoles.get(role);
-        for (var uri : uriArr)
-            permissionsGroup.put(uri, groupStr);
+        List<String> arrList = permissionsRoles.get(role);
+        arrList.addAll(Arrays.asList(uriArr));
     }
 
     /**
-     * Add permissions for all users;
+     * Add permissions for all user roles.
      *
-     * @param uriArr - array string contains uri;
+     * @param uriArr - array string contains URL.
+     */
+    private void addPermissionAllRoles(String... uriArr) {
+        permissionsAllRoles.addAll(Arrays.asList(uriArr));
+    }
+
+    /**
+     * Add permissions for all users.
+     *
+     * @param uriArr - array string contains URL.
      */
     private void addPermissionAll(String... uriArr) {
         permissionsAll.addAll(Arrays.asList(uriArr));
     }
 
+
     /**
-     * Add permissions for anonymous users;
+     * Add permissions for anonymous users.
      *
-     * @param uriArr - array string contains uri;
+     * @param uriArr - array string contains URL.
      */
     private void addPermissionAnonymous(String... uriArr) {
         permissionsAnonymous.addAll(Arrays.asList(uriArr));
     }
 
-
     /**
+     * Disabled CSRF for specified uri.
      *
-     * Disabled CSRF for specified uri;
-     *
-     * @param uriArr - array string contains uri;
-     * */
-    private void disableCSRF(String... uriArr){
+     * @param uriArr - array string contains URL.
+     */
+    private void disableCSRF(String... uriArr) {
         disableCSRF.addAll(Arrays.asList(uriArr));
     }
 
-
     /**
-     * Assigning permissions for roles, anonymous and all
+     * Assigning permissions for roles, anonymous and all.
      */
     @PostConstruct
     private void setPermissions() {
 
         initRoles();
 
-        // TODO: fix it;
+        /* Roles settings */
+        addPermissionAllRoles(
+                "/",
+                "/reports/**",
+                "/analytics/**");
 
-        // Admin
-//        addPermissionRole(UserRole.ADMIN,"/**");
+        // Only for admin
+        addPermissionRole(UserRole.ADMIN,
+                "/userManagement/**",
+                "/account/**");
 
-        // User
-//        addPermissionRole(UserRole.USER,"/**");
+        // Only for user
+        //addPermissionRole(UserRole.USER);
 
-        // Anonymous
-        addPermissionAnonymous("/account/registration**");
-
-        // All
+        /* All users */
         addPermissionAll(
                 "/collector/**",
                 "/style/**",
@@ -105,12 +119,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/app/**",
                 "/fontawesome/**");
 
-        // Disable CSRF
+        /* Anonymous users */
+        addPermissionAnonymous("/account/registration");
+
+        /* Disable CSRF */
         disableCSRF("/collector/**");
     }
 
     /**
-     * Authority settings
+     * Authority settings.
      */
     @Override
     public void configure(AuthenticationManagerBuilder auth) {
@@ -118,30 +135,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * Authorization settings
+     * Authorization settings.
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        for (var uri : permissionsAll)
-            http.authorizeRequests().antMatchers(uri).permitAll();
+        /* Anonymous */
+        http.authorizeRequests().
+                antMatchers(permissionsAnonymous.toArray(new String[0])).anonymous();
 
-        for (var uri : permissionsAnonymous)
-            http.authorizeRequests().antMatchers(uri).anonymous();
+        /* UserRole */
+        for (var item : permissionsRoles.entrySet()) {
+            http.authorizeRequests().antMatchers(item.getValue().toArray(new String[0])). // Add URL's
+                    hasAuthority(mapRoles.get(item.getKey()));                            // Add role
+        }
 
-        for (var it : permissionsGroup.entrySet())
-            http.authorizeRequests().antMatchers(it.getKey()).hasAuthority(it.getValue());
+        /* Other */
+        http.authorizeRequests().
+                antMatchers(permissionsAll.toArray(new String[0])).permitAll().          // All users
+                antMatchers(permissionsAllRoles.toArray(new String[0])).authenticated(). // All user roles
+                anyRequest().authenticated().and().formLogin();
 
-        http.cors().and().
-                authorizeRequests().
-                anyRequest().
-                authenticated().
-                and().
-                formLogin();
-
-        for (var uri: disableCSRF)
-            http.csrf().ignoringAntMatchers(uri);
-
+        /* Disabled CSRF */
+        for (var url : disableCSRF)
+            http.csrf().ignoringAntMatchers(url);
     }
 
 }

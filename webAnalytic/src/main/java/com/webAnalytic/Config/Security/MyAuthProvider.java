@@ -17,7 +17,6 @@ import java.util.Arrays;
 @Component
 public class MyAuthProvider implements AuthenticationProvider {
 
-    private final String loginErrorMessage = "Ошибка авторизации";
     private DAO<User> userDAO;
 
     @Autowired
@@ -37,27 +36,25 @@ public class MyAuthProvider implements AuthenticationProvider {
 
         String userName = authentication.getName();
         String password = authentication.getCredentials().toString();
+        final String loginErrorMessage = "Login failure!";
 
         try {
-            // Find input user
+            // Find user
             User user = userDAO.getByObject(new User(userName));
-            if (user == null)
-                throw new Exception(String.format("пользователь с именем \"%s\" не найден!", userName));
-
-            // Hash password
-            var bytePasswordHash = Hash.doHash(password);
+            if (user == null) throw new BadCredentialsException(loginErrorMessage);
 
             // Check password
-            if (!Arrays.equals(bytePasswordHash, user.getPassword()))
-                throw new Exception("неверный пароль");
+            if (!Arrays.equals(Hash.doHash(password), user.getPassword()))
+                throw new BadCredentialsException(loginErrorMessage);
 
+            // Create new principal
             UserDetail principal = new UserDetail(user);
 
             // Auth success
             return new UsernamePasswordAuthenticationToken(principal, password, principal.getAuthorities());
 
         } catch (Exception ex) {
-            throw new BadCredentialsException(String.format("%s: %s", loginErrorMessage, ex.getMessage()));
+            throw new BadCredentialsException(loginErrorMessage);
         }
     }
 

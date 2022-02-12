@@ -21,20 +21,20 @@ body{
   border-radius: 10px;
   color: #ffffff;
 }
-#btnReg{
+.btnSubmit{
   width: 100%;
   outline: none;
   background-color: #6987f5;
   border-radius: 10px;
   color: #ffffff;
 }
-#btnReg.disabled{
+.btnSubmit.disabled{
   width: 100%;
   pointer-events: none;
   color: #505258;
   background-color: inherit;
 }
-.btnEntr:hover, #btnReg:hover{
+.btnEntr:hover, .btnSubmit:hover{
   box-shadow: 0.6em 0.6em 1.2em #d2dce9, -0.5em -0.5em 1em #ffffff;
   background-color: #f8f9fb;
   color: #6987f5;

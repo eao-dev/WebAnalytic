@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -154,11 +155,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().
                 antMatchers(permissionsAll.toArray(new String[0])).permitAll().          // All users
                 antMatchers(permissionsAllRoles.toArray(new String[0])).authenticated(). // All user roles
-                anyRequest().authenticated().and().formLogin();
+                anyRequest().authenticated().and().formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/")
+                .permitAll()
+                .and()
+                .logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/login")
+                .permitAll()
+                .and().csrf().ignoringAntMatchers(disableCSRF.toArray(new String[0]))   // Disabled CSRF
+        ;
 
-        /* Disabled CSRF */
-        for (var url : disableCSRF)
-            http.csrf().ignoringAntMatchers(url);
     }
 
 }

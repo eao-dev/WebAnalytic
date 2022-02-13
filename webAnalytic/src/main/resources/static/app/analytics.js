@@ -4,6 +4,8 @@ const analyticInfoContainerId = 'analyticInfo';
 const textInfoContainerId = 'textInfo';
 const chartsContainerId = 'charts';
 
+let analyticsData = null;
+
 /*
  * Debug out.
  */
@@ -13,8 +15,8 @@ function debugLog(msg) {
 }
 
 /*
-* Clear all data in the div containing the charts.
-*/
+ * Clear all data in the div containing the charts.
+ */
 function resetAnalyticsInfo() {
 
     const infoBlocks = [
@@ -32,7 +34,8 @@ function resetAnalyticsInfo() {
         'audience_ref_browser',
         'audience_ref_OS',
         'audience_ref_Device',
-        'audience_ref_country'];
+        'audience_ref_country'
+    ];
 
     for (let item of infoBlocks) {
         const div = document.getElementById(item);
@@ -42,17 +45,17 @@ function resetAnalyticsInfo() {
 }
 
 /*
-* Add to page elements checkbox and label for filter.
-*
-* @param jsonFuncInfoString - JSON object about filter from server;
-*/
+ * Add to page elements checkbox and label for filter.
+ *
+ * @param jsonFuncInfoString - JSON object about filter from server;
+ */
 function fillingFilter(jsonFuncInfoString) {
     let formFilter = document.getElementById('formFilter');
     const filters = JSON.parse(jsonFuncInfoString);
 
     let outHtmlCode = '';
 
-    let filling = function (filter) {
+    let filling = function(filter) {
         Object.entries(filter).forEach(([key, value]) => {
             outHtmlCode +=
                 `<label class="form-check-label"> ${value} </label>
@@ -72,24 +75,24 @@ function fillingFilter(jsonFuncInfoString) {
 }
 
 /*
-* Get analytics information from server(using filters) for draw charts and show text;
-*/
+ * Get analytics information from server(using filters) for draw charts and show text;
+ */
 function updateDataAnalytics() {
     resetAnalyticsInfo();
     //debugLog('Get analytic data');
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/analytics');
-    xhr.onreadystatechange = function () {
+    xhr.onreadystatechange = function() {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
-                displayOfDataAnalytics(xhr.response);
+                analyticsData = xhr.response;
+                displayOfDataAnalytics(analyticsData);
                 // Show general info
                 let collapse = document.getElementById('collapse1');
                 if (collapse != null)
                     collapse.classList.add('show');
-            }
-            else
+            } else
                 alert('Ошибка получения данных с сервера');
         }
     }
@@ -105,9 +108,9 @@ function updateDataAnalytics() {
 }
 
 /*
-* Display of analytical data.
-* @param jsonData - analytical data.
-*/
+ * Display of analytical data.
+ * @param jsonData - analytical data.
+ */
 function displayOfDataAnalytics(jsonData) {
     let analyticDataObject = JSON.parse(jsonData);
     const generalObject = analyticDataObject.general;
@@ -115,10 +118,12 @@ function displayOfDataAnalytics(jsonData) {
     // Set text view
     let containerText = document.getElementById(textInfoContainerId);
     let outInfo = `
-        <p>Посетителей online: ${generalObject.onlineVisitors}</p>
-        <p>Всего уникальных посетителей: ${generalObject.allUniqueVisitors}</p>
-        <p>Всего просмотров: ${generalObject.allCountVisitedResource}</p>
-        <p>Среднее количество просмотров страниц: ${generalObject.avgCountVisitedResource}</p>`;
+        <div class="textGeneralInfo">
+        <b>Посетителей online:</b> ${generalObject.onlineVisitors}<br>
+        <b>Всего уникальных посетителей:</b> ${generalObject.allUniqueVisitors}<br>
+        <b>Всего просмотров:</b> ${generalObject.allCountVisitedResource}<br>
+        <b>Среднее количество просмотров страниц:</b> ${generalObject.avgCountVisitedResource}<br>
+        </dvi>`;
     containerText.innerHTML += outInfo;
 
     google.charts.load('current', { 'packages': ['corechart'] });
@@ -160,14 +165,14 @@ function displayOfDataAnalytics(jsonData) {
 }
 
 /*
-* Draw charts into container with id {containerId};
-*
-* @param type        - type of chart [pie, line, ...];
-* @param containerId - id of container;
-* @param containerParent - id of parent container;
-* @param objectData  - object with data;
-* @param title       - title of chart;
-*/
+ * Draw charts into container with id {containerId};
+ *
+ * @param type        - type of chart [pie, line, ...];
+ * @param containerId - id of container;
+ * @param containerParent - id of parent container;
+ * @param objectData  - object with data;
+ * @param title       - title of chart;
+ */
 function drawChart(type, containerParent, containerId, objectData, title) {
     if (objectData == null ||
         type == undefined ||
@@ -211,16 +216,15 @@ function drawChart(type, containerParent, containerId, objectData, title) {
     switch (type) {
         case "pie":
             new google.visualization.PieChart(container).draw(data, {
-                'title': title, is3D: true,
-                width: 1024,
-                height: 480
+                'title': title,
+                is3D: true,
+                height: 240
             });
             break;
         case "line":
             new google.visualization.LineChart(container).draw(data, {
                 'title': title,
-                width: 1024,
-                height: 480
+                height: 240
             });
             break;
         case "column":
@@ -229,15 +233,13 @@ function drawChart(type, containerParent, containerId, objectData, title) {
                 'title': title,
                 bar: { groupWidth: "95%" },
                 legend: { position: "none" },
-                width: 1024,
-                height: 480
+                height: 240
             };
             new google.visualization.ColumnChart(container).draw(view, optionsColumn);
             break;
         case "geo":
             new google.visualization.GeoChart(container).draw(data, {
                 'title': title,
-                width: 1024,
                 height: 480
             });
             break;
@@ -250,8 +252,8 @@ function drawChart(type, containerParent, containerId, objectData, title) {
 }
 
 /*
-* Drawing nested elements.
-*/
+ * Drawing nested elements.
+ */
 function drawNested(type, containerParent, containerNamePrefix, objectData, titleChart) {
     if (objectData != null && objectData != undefined) {
         Object.entries(objectData).forEach(
@@ -261,3 +263,17 @@ function drawNested(type, containerParent, containerNamePrefix, objectData, titl
         );
     }
 }
+
+/*
+ * Resize grapics. 
+ */
+function resize() {
+    if (analyticsData != null) {
+        resetAnalyticsInfo();
+        displayOfDataAnalytics(analyticsData);
+    }
+}
+
+window.onresize = resize;
+
+$(document.querySelectorAll('.collapse')).on('show.bs.collapse', window.onresize);

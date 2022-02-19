@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      th:include="/layouts/layout::page">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:include="/layouts/layout::page">
 
 <title id="title">Упрвление пользователями</title>
 
-<div th:fragment="headerTitle"><h1>Упрвление пользователями</h1></div>
+<div th:fragment="headerTitle">
+    <h1>Упрвление пользователями</h1>
+</div>
 
 <div th:fragment="menu">
     <hr>
@@ -15,23 +15,19 @@
         </div>
         <form th:action="@{/userManagement/add}" th:object="${newUser}" th:method="POST">
             <div class="mb-3">
-                <input type="text" class="form" th:field="*{login}" aria-describedby="nameHelp"
-                       placeholder="Логин">
+                <input type="text" class="form" th:field="*{login}" aria-describedby="nameHelp" placeholder="Логин">
             </div>
             <div class="alert alert-danger" th:if="${#fields.hasErrors('login')}" th:errors="*{login}"></div>
 
             <div class="mb-3">
-                <input type="text" class="form" th:field="*{name}" aria-describedby="userHelp"
-                       placeholder="Имя">
+                <input type="text" class="form" th:field="*{name}" aria-describedby="userHelp" placeholder="Имя">
             </div>
             <div class="alert alert-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
 
             <div class="mb-3">
-                <input type="password" class="form" th:field="*{passwordString}"
-                       aria-describedby="passwordHelp" placeholder="Пароль">
+                <input type="password" class="form" th:field="*{passwordString}" aria-describedby="passwordHelp" placeholder="Пароль">
             </div>
-            <div class="alert alert-danger" th:if="${#fields.hasErrors('passwordString')}"
-                 th:errors="*{passwordString}"></div>
+            <div class="alert alert-danger" th:if="${#fields.hasErrors('passwordString')}" th:errors="*{passwordString}"></div>
 
             <div class="btnBlock">
                 <button type="submit" class="btn btn-primary">Добавить</button>
@@ -47,35 +43,33 @@
     <div class="mainTable">
         <table class="usersTable" id="tableSite">
             <thead>
-            <tr>
-                <th colspan="3">Список пользователей</th>
-            </tr>
+                <tr>
+                    <th colspan="3">Список пользователей</th>
+                </tr>
 
             </thead>
             <tbody>
-            <th:block th:each="user:${userList}">
-                <tr>
-                    <td width="90%">
-                        <p id="id" class="mb-0" th:text="${user.login} + ' ('+${user.name} + ')'"></p>
-                    </td>
+                <th:block th:each="user:${userList}">
+                    <tr>
+                        <td width="90%">
+                            <p id="id" class="mb-0" th:text="${user.login} + ' ('+${user.name} + ')'"></p>
+                        </td>
 
-                    <td width="5%" class="text-center admin">
-                        <button class="btn" data-bs-toggle="modal" data-bs-target="#simplyModal"
-                           th:onclick="@{'document.getElementById(`userIdModal`).value=' + ${user.id}}">
+                        <td width="5%" class="text-center admin">
+                            <button class="btn" data-bs-toggle="modal" data-bs-target="#simplyModal" th:onclick="@{'document.getElementById(`userIdModal`).value=' + ${user.id}}">
                             <i class="fas fa-edit" aria-hidden="true"></i></button>
-                    </td>
+                        </td>
 
-                    <td width="5%" class="text-center admin">
-                        <form th:action="@{'/userManagement/delete'}" th:method="delete">
-                            <input type="hidden" th:name="userId" th:value="${user.id}">
-                            <button type="submit" class="btn">
+                        <td width="5%" class="text-center admin">
+                            <form th:action="@{/userManagement/delete/{id}(id=${user.id})}" th:method="delete">
+                                <button type="submit" class="btn">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>
-                        </form>
-                    </td>
+                            </form>
+                        </td>
 
-                </tr>
-            </th:block>
+                    </tr>
+                </th:block>
             </tbody>
         </table>
     </div>
@@ -89,8 +83,7 @@
     <form th:action='@{/userManagement/edit}' th:method='put'>
         <input type="hidden" name="userId" value="" id="userIdModal">
         <input type='text' name='name' class='form-control' placeholder='Новое имя...'><br>
-        <input type='password' name='password' class='form-control'
-               placeholder='Новый пароль...'><br>
+        <input type='password' name='password' class='form-control' placeholder='Новый пароль...'><br>
         <button type='submit' class='btn btn-success'>Изменить данные</button>
     </form>
 </div>

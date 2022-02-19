@@ -1,7 +1,6 @@
 package com.webAnalytic.Controllers;
 
 import com.webAnalytic.Services.ReportService;
-import com.webAnalytic.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -12,17 +11,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ *  This controller manages reports.
+ */
+
 @Controller
 @RequestMapping("reports")
 public class ReportController extends BaseController {
 
     private final ReportService reportService;
-    private final UserService userService;
 
     @Autowired
-    public ReportController(ReportService reportService, UserService userService) {
+    public ReportController(ReportService reportService) {
         this.reportService = reportService;
-        this.userService = userService;
     }
 
     @GetMapping
@@ -33,9 +34,8 @@ public class ReportController extends BaseController {
         return "/reports";
     }
 
-    @DeleteMapping("delete")
-    public String delete(RedirectAttributes redirectAttributes,
-                         @RequestParam(name = "reportId") long reportId) {
+    @DeleteMapping("delete/{id}")
+    public String delete(RedirectAttributes redirectAttributes,  @PathVariable("id") long reportId) {
 
         var userAuth = authCurrentUser();
         if (reportService.removeReport(userAuth.getId(), reportId))
@@ -46,8 +46,8 @@ public class ReportController extends BaseController {
         return "redirect:/reports";
     }
 
-    @GetMapping("download")
-    public ResponseEntity<Resource> download(Model model, @RequestParam(name = "reportId") long reportId) {
+    @GetMapping("download/{id}")
+    public ResponseEntity<Resource> download(Model model, @PathVariable("id") long reportId) {
 
         var userAuth = authCurrentUser();
         model.addAttribute("userAuth", userAuth);
@@ -59,12 +59,6 @@ public class ReportController extends BaseController {
                 .body(out);
     }
 
-    /**
-     * Added report;
-     *
-     * @param fileName     - report file name;
-     * @param reportSource - HTML code of report;
-     */
     @PostMapping("add")
     @ResponseBody
     public ResponseEntity<Void> add(@RequestParam(name = "fileName") String fileName,

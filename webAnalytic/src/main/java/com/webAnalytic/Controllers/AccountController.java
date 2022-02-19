@@ -1,7 +1,7 @@
 package com.webAnalytic.Controllers;
 
-import com.webAnalytic.Config.Security.Entity.UserRole;
-import com.webAnalytic.Entity.User;
+import com.webAnalytic.Auxiliary.Config.Security.UserRole;
+import com.webAnalytic.Domains.User;
 import com.webAnalytic.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,7 +47,7 @@ public class AccountController extends BaseController {
                                BindingResult br) throws Exception {
 
         if (br.hasErrors()) {
-            redirectBindingResults(redirectAttributes, new PairObjectBr("newUser", newUser, br));
+            redirectBindingResults(redirectAttributes, new PairObjectBindingResult("newUser", newUser, br));
             return "redirect:registration";
         }
 
@@ -59,9 +59,8 @@ public class AccountController extends BaseController {
         return "redirect:/";
     }
 
-
     @PutMapping("edit")
-    public String edit(RedirectAttributes redirectAttributes, @ModelAttribute("userAuth") User userAuth,
+    public String edit(RedirectAttributes redirectAttributes,
                        @RequestParam("name") String name, @RequestParam("password") String password
     ) throws Exception {
 
@@ -74,8 +73,7 @@ public class AccountController extends BaseController {
     }
 
     @DeleteMapping("delete")
-    public String delete(RedirectAttributes redirectAttributes)
-            throws Exception {
+    public String delete(RedirectAttributes redirectAttributes) throws Exception {
 
         if (userService.deleteMySelf(authCurrentUser().getId())) {
             SecurityContextHolder.clearContext();

@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * This controller manages the collection of visitor data and also adds new visitors.
+ * */
+
 @RestController
 @RequestMapping("collector")
 public class CollectorController extends BaseController {
@@ -21,31 +25,30 @@ public class CollectorController extends BaseController {
     }
 
     /**
-     * Accepts request from visitor and registered in database;
+     * Accepts request from visitor and registered in DB;
      * This method allows cross-domain communication;
      *
-     * @param infoJSONObject - contain info about visit;
+     * @param infoJSON - contain info about visit;
      * @param request        - object {@link HttpServletRequest}
      */
     @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json")
     @CrossOrigin(origins = "*")
-    public ResponseEntity<Long> visit(@RequestBody String infoJSONObject,
+    public ResponseEntity<Long> visit(@RequestBody String infoJSON,
                                       HttpServletRequest request) throws Exception {
-        JSONObject jsonObject = new JSONObject(infoJSONObject);
 
-        String userAgent = request.getHeader("User-Agent");
+        JSONObject visitorInfo = new JSONObject(infoJSON);
+        long visitorUid = (visitorInfo.has("uid") ? Long.parseLong(visitorInfo.getString("uid")) : 0L);
 
-        Long inUid = (jsonObject.has("uid") ? Long.parseLong(jsonObject.getString("uid")) : 0L);
-
-        var out = visitService.addVisit(inUid,
-                jsonObject.getLong("siteId"),
-                userAgent,
+        var out = visitService.addVisit(visitorUid,
+                visitorInfo.getLong("siteId"),
+                request.getHeader("User-Agent"),
                 request.getRemoteAddr(),
-                jsonObject.getString("ref"),
-                jsonObject.getString("page"),
-                jsonObject.getString("scr"));
+                visitorInfo.getString("ref"),
+                visitorInfo.getString("page"),
+                visitorInfo.getString("scr"));
+
         if (out == -1) // if -1 then this is an error
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.ok().build();
 
         if (out > 0) // if > - added new visitor
             return new ResponseEntity<>(out, HttpStatus.CREATED);

@@ -9,38 +9,40 @@ const simpleMsgErrorId = "simplyModalError";
 const setSimpleModalBodyId = 'simplyModalBody';
 const setSimpleModalTitleId = 'simplyModalTitle';
 
-function getSimpleModalBody(){
+function getSimpleModalBody() {
     return document.getElementById(setSimpleModalBodyId).innerHTML;
 }
 
-function setSimpleModalBody(bodySource){
+function setSimpleModalBody(bodySource) {
+    document.getElementById(simpleMsgSuccessId).style.display = 'none';
+    document.getElementById(simpleMsgErrorId).style.display = 'none';
     document.getElementById(setSimpleModalBodyId).innerHTML = bodySource;
 }
 
-function getSimpleModalTitle(){
+function getSimpleModalTitle() {
     return document.getElementById(setSimpleModalTitleId).innerHTML;
 }
 
-function setSimpleModalTitle(titleText){
+function setSimpleModalTitle(titleText) {
     document.getElementById(setSimpleModalTitleId).innerHTML = titleText;
 }
 
 function showSuccessSimplyModal(msgText) {
     let container = document.getElementById(simpleMsgSuccessId);
-	container.style.display = 'block';
+    container.style.display = 'block';
     container.innerHTML = msgText;
 }
 
 function showErrorSimplyModal(msgText) {
     let container = document.getElementById(simpleMsgErrorId);
-	container.style.display = 'block';
+    container.style.display = 'block';
     container.innerHTML = msgText;
 }
 
 /*
-* Hidden status message(error/success) in simply modal window;
-*/
-function resetStatusSimplyModal(){
+ * Hidden status message(error/success) in simply modal window;
+ */
+function resetStatusSimplyModal() {
     let containerSuccess = document.getElementById(simpleMsgSuccessId);
     let containerError = document.getElementById(simpleMsgErrorId);
 

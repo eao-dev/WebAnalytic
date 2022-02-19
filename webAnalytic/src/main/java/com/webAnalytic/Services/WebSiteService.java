@@ -1,9 +1,9 @@
 package com.webAnalytic.Services;
 
-import com.webAnalytic.DAO.AccessUserWebSiteDAO;
-import com.webAnalytic.DAO.WebSiteDAO;
-import com.webAnalytic.Entity.User;
-import com.webAnalytic.Entity.WebSite;
+import com.webAnalytic.Domains.DAO.AccessUserWebSiteDAO;
+import com.webAnalytic.Domains.DAO.WebSiteDAO;
+import com.webAnalytic.Domains.User;
+import com.webAnalytic.Domains.WebSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,10 +77,10 @@ public class WebSiteService {
     public List<WebSite> getWebSiteList(User userAuth) {
 
         if (userAuth.isAdmin())
-            return webSiteDAO.listByObject(userAuth);
+            return webSiteDAO.listByAdmin(userAuth.getId());
         else {
             List<WebSite> result = new ArrayList<>();
-            for (var it : accessUserWebSiteDAO.listBySimplyUser(userAuth))
+            for (var it : accessUserWebSiteDAO.getAccessListByUser(userAuth.getId()))
                 result.add(it.getWebSite());
 
             return result;

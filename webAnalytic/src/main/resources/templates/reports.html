@@ -26,12 +26,11 @@
             <th:block th:each="report:${reportsList}">
                 <tr>
                     <td width="85%">
-                        <a th:href="@{'/reports/download?reportId=' + ${report.id}}" th:text="${report.fileName}"></a>
+                        <a th:href="@{/reports/download/{id}(id=${report.id})}" th:text="${report.fileName}"></a>
                     </td>
 
                     <td width="5%" class="text-center admin">
-                        <form th:action="@{'/reports/delete'}" th:method="delete">
-                            <input type="hidden" th:name="reportId" th:value="${report.id}">
+                        <form th:action="@{/reports/delete/{id}(id=${report.id})}" th:method="delete">
                             <button type="submit" class="btn">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>

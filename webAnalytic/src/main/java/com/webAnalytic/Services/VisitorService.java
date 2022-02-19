@@ -1,7 +1,7 @@
 package com.webAnalytic.Services;
 
-import com.webAnalytic.DAO.DAO;
-import com.webAnalytic.Entity.Visitor;
+import com.webAnalytic.Domains.DAO.DAO;
+import com.webAnalytic.Domains.Visitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

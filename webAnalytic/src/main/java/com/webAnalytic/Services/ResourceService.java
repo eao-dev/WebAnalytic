@@ -1,8 +1,8 @@
 package com.webAnalytic.Services;
 
-import com.webAnalytic.DAO.ResourceDAO;
-import com.webAnalytic.Entity.Resource;
-import com.webAnalytic.Entity.WebSite;
+import com.webAnalytic.Domains.DAO.ResourceDAO;
+import com.webAnalytic.Domains.Resource;
+import com.webAnalytic.Domains.WebSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,22 +40,5 @@ public class ResourceService {
         return resourceDAO.create(resource);
     }
 
-    /**
-     * Delete all resources for the specified site;
-     *
-     * @param siteId - if od web-site;
-     */
-    public boolean deleteForSite(long ownerSiteId, long siteId) throws Exception {
 
-        if (!userService.isOwnerWebSite(ownerSiteId, siteId))
-            return false;
-
-        ArrayList<Resource> arrResourcesWebSite = (ArrayList<Resource>) resourceDAO.listByObject(new WebSite(siteId));
-
-        List<Long> resourceList = new ArrayList<>();
-        for (var res : arrResourcesWebSite)
-            resourceList.add(res.getId());
-
-        return resourceDAO.deleteByListId(resourceList);
-    }
 }

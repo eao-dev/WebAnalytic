@@ -45,7 +45,7 @@
             <th:block th:each="site:${webSiteList}">
                 <tr>
                     <td width="85%">
-                        <a th:href="@{'/analytics?siteId=' + ${site.id}}"
+                        <a th:href="@{analytics/{id}(id=${site.id})}"
                            th:text="${site.domain}"></a>
                     </td>
 
@@ -62,7 +62,7 @@
                     </td>
 
                     <td th:if="${userAuth.isAdmin}"  width="5%" class="text-center admin">
-                        <form th:action="@{'/delete'}" th:method="delete">
+                        <form th:action="@{delete/{id}(id=${site.id})}" th:method="delete">
                             <input type="hidden" name="siteId" th:value="${site.id}">
                             <button class="btn" type="submit">
                                 <i class="fas fa-trash" aria-hidden="true"></i>

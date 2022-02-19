@@ -1,12 +1,12 @@
 package com.webAnalytic.Services;
 
-import com.webAnalytic.Config.Security.Entity.UserRole;
-import com.webAnalytic.DAO.AccessUserWebSiteDAO;
-import com.webAnalytic.DAO.DAO;
-import com.webAnalytic.Entity.AccessUserWebSite;
-import com.webAnalytic.Entity.User;
-import com.webAnalytic.Entity.WebSite;
-import com.webAnalytic.Utils.Hash;
+import com.webAnalytic.Auxiliary.Hash;
+import com.webAnalytic.Auxiliary.Config.Security.UserRole;
+import com.webAnalytic.Domains.DAO.AccessUserWebSiteDAO;
+import com.webAnalytic.Domains.DAO.DAO;
+import com.webAnalytic.Domains.DAO.UserDAO;
+import com.webAnalytic.Domains.User;
+import com.webAnalytic.Domains.WebSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +15,12 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private final DAO<User> userDAO;
+    private final UserDAO userDAO;
     private final DAO<WebSite> webSiteDAO;
     private final AccessUserWebSiteDAO accessWebSiteServiceDAO;
 
     @Autowired
-    public UserService(DAO<User> userDAO, DAO<WebSite> webSiteDAO, AccessUserWebSiteDAO accessWebSiteServiceDAO) {
+    public UserService(UserDAO userDAO, DAO<WebSite> webSiteDAO, AccessUserWebSiteDAO accessWebSiteServiceDAO) {
         this.userDAO = userDAO;
         this.webSiteDAO = webSiteDAO;
         this.accessWebSiteServiceDAO = accessWebSiteServiceDAO;
@@ -43,7 +43,7 @@ public class UserService {
      * @param parentUserId - id of user (parent);
      * @param childUserId  - id of user (child);
      */
-    public boolean isOwnerUser(long parentUserId, long childUserId) throws Exception {
+    public boolean isOwnerUser(long parentUserId, long childUserId) {
         User childUser = userDAO.getById(childUserId);
         return parentUserId == childUser.getUserAdminId();
     }
@@ -68,7 +68,7 @@ public class UserService {
 
         // Set other params
         user.setPassword(hashPassword);
-        user.setAdminState((role == UserRole.ADMIN));
+        user.setAdminState(role == UserRole.ADMIN);
 
         return userDAO.create(user);
     }
@@ -104,19 +104,19 @@ public class UserService {
         return userDAO.update(userUpdate);
     }
 
-    public boolean deleteMySelf(long mySelfUserId) throws Exception {
+    public boolean deleteMySelf(long mySelfUserId) {
         return userDAO.deleteById(mySelfUserId);
     }
 
-    public boolean deleteByID(long ownerUserId, long deleteUserId) throws Exception {
+    public boolean deleteByID(long ownerUserId, long deleteUserId) {
         if (!isOwnerUser(ownerUserId,deleteUserId))
             return false;
 
         return userDAO.deleteById(deleteUserId);
     }
 
-    public List<User> getUsersList(User user) throws Exception {
-        return userDAO.listByObject(user);
+    public List<User> getUsersList(User user) {
+        return userDAO.getUsersByAdmin(user.getId());
     }
 
 }

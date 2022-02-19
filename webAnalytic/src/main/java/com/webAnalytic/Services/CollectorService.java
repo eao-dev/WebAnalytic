@@ -1,12 +1,12 @@
 package com.webAnalytic.Services;
 
 import com.maxmind.geoip2.DatabaseReader;
-import com.webAnalytic.DAO.DAO;
-import com.webAnalytic.DAO.VisitorDAO;
-import com.webAnalytic.Entity.Resource;
-import com.webAnalytic.Entity.Visit;
-import com.webAnalytic.Entity.Visitor;
-import com.webAnalytic.Entity.WebSite;
+import com.webAnalytic.Domains.DAO.DAO;
+import com.webAnalytic.Domains.DAO.VisitorDAO;
+import com.webAnalytic.Domains.Resource;
+import com.webAnalytic.Domains.Visit;
+import com.webAnalytic.Domains.Visitor;
+import com.webAnalytic.Domains.WebSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -56,11 +56,11 @@ public class CollectorService {
     }
 
     /**
-     * Return country-code for IP
+     * Return country-code by IP;
      *
-     * @param ip - IP-address
+     * @param ip - IP-address.
      */
-    private String getCountry(String ip) {
+    private String getCountryByIp(String ip) {
         try {
             InetAddress ipAddress = InetAddress.getByName(ip);
             return dbReader.country(ipAddress).getCountry().getIsoCode();
@@ -70,79 +70,87 @@ public class CollectorService {
     }
 
     /**
+     * Create new visitor with user-agent, IP and screen-resolution.
+     */
+    Visitor createNewVisitor(String userAgent, String IP, String screenResolution) {
+        Visitor visitor = new Visitor();
+
+        var clientInfo = new Parser().parse(userAgent);
+
+        visitor.setCountry(getCountryByIp(IP));
+        visitor.setScResolution(new String(Base64.getDecoder().decode(screenResolution)));
+        visitor.setOS(clientInfo.os.family);
+        visitor.setBrowser(clientInfo.userAgent.family);
+
+        String device = clientInfo.device.family;
+        if (device.equals("Other"))
+            device = "PC";
+
+        visitor.setDevice(device);
+
+        // Add new visitor to DB
+        if (!visitorDAO.createWithLastInsertedId(visitor)) // here the identifier will be assigned to the object
+            return null;
+
+        return visitor;
+    }
+
+    /**
      * Add visit to DB;
      *
      * @param uid       - unique ID from cookie of visitor;
      * @param webSiteId - if of web-site;
      * @param userAgent - HTTP-header field: user-agent;
-     * @param ip        - IP-address of visitor;
+     * @param IP        - IP-address of visitor;
      * @param referer   - HTTP-header field: referer;
      * @param page      - visited page;
      * @param scr       - screen resolution;
      */
-    public long addVisit(Long uid, long webSiteId, String userAgent, String ip,
-                         String referer, String page, String scr) throws Exception {
+    public long addVisit(final long uid, final long webSiteId, final String userAgent, final String IP,
+                         final String referer, final String page, final String scr) throws Exception {
         long ret = 0;
+
         // Get visitor
-        Visitor visitor;
-        visitor = visitorDAO.getById(uid);
+        Visitor visitor = visitorDAO.getById(uid);
 
         if (visitor == null) { // This is new visitor. Add to DB
-            visitor = new Visitor();
-
-            var clientInfo = new Parser().parse(userAgent);
-
-            visitor.setCountry(getCountry(ip));
-
-            visitor.setScResolution(new String(Base64.getDecoder().decode(scr)));
-
-            visitor.setOS(clientInfo.os.family);
-            visitor.setBrowser(clientInfo.userAgent.family);
-
-            String device = clientInfo.device.family;
-            if (device.equals("Other"))
-                device = "PC";
-
-            visitor.setDevice(device);
-
-            // Add new visitor to DB
-            if (!visitorDAO.createWithLastInsertedId(visitor)) // here the identifier will be assigned to the object
+            visitor = createNewVisitor(userAgent, IP, scr);
+            if (visitor == null)
                 return -1;
 
             // UID for new user
             ret = visitor.getId();
         }
 
-        // Find domain
+        // Find website
         WebSite webSite = webSiteDAO.getById(webSiteId);
         if (webSite == null)
             return -1;
 
-        // Add new visit to DB
+        var decoderB64 = Base64.getDecoder();
 
         // Set referer
         String refererDecoded = null;
         if (!referer.isEmpty())
-            refererDecoded = new String(Base64.getDecoder().decode(referer));
+            refererDecoded = new String(decoderB64.decode(referer));
 
         // Set visited page
         String pageDecoded = "";
         if (!page.isEmpty())
-            pageDecoded = new String(Base64.getDecoder().decode(page));
+            pageDecoded = new String(decoderB64.decode(page));
 
-        // Create target resource
+        // Find resource
         Resource resource = resourceDAO.getByObject(new Resource(webSite, pageDecoded));
         if (resource == null) {
             resource = new Resource(webSite, pageDecoded);
-            // Add target resource
+
+            // Add resource
             if (!resourceDAO.create(resource))
                 return -1;
         }
 
-        // Create visit
-        Visit visit = new Visit(refererDecoded, resource, visitor);
-
         // Add visit
+        Visit visit = new Visit(refererDecoded, resource, visitor);
         if (!visitDAO.create(visit))
             return -1;
 

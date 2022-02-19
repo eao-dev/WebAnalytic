@@ -1,6 +1,6 @@
 /*
-* Create and send to server report for site;
-*/
+ * Create and send to server report for site;
+ */
 function createReport(siteId) {
 
     resetStatusSimplyModal();
@@ -11,14 +11,14 @@ function createReport(siteId) {
     <html lang="ru">
         ${reportHeader}
     <body>
-        <p class="text-center h1">Отчёт ${fileName}</p><br>
+        <p class="text-center h1">${fileName}</p><br>
         ${document.getElementById(analyticInfoContainerId).innerHTML}
     </body>
     </html>`;
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/reports/add');
-    xhr.onreadystatechange = function () {
+    xhr.onreadystatechange = function() {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 201)
                 showSuccessSimplyModal('Успешно');
@@ -36,7 +36,8 @@ function createReport(siteId) {
     xhr.send(data);
 }
 
-const reportHeader = `<head>
+const reportHeader = `
+<head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -46,8 +47,6 @@ const reportHeader = `<head>
       rel="stylesheet"
       integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
       crossorigin="anonymous"/>
-
-      <link rel="stylesheet" href="/fontawesome/css/all.min.css"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>

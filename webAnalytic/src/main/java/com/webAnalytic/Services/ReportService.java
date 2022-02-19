@@ -1,8 +1,8 @@
 package com.webAnalytic.Services;
 
-import com.webAnalytic.DAO.ReportDAO;
-import com.webAnalytic.Entity.Report;
-import com.webAnalytic.Entity.User;
+import com.webAnalytic.Domains.DAO.ReportDAO;
+import com.webAnalytic.Domains.Report;
+import com.webAnalytic.Domains.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,8 @@ public class ReportService {
         this.reportDAO = reportDAO;
     }
 
-
     private boolean checkOwnerReport(long userOwnerId, long reportId){
-        Report report = reportDAO.getById(reportId);
+        Report report = reportDAO.getByIdWithoutSource(reportId);
         return (report.getUser().getId()==userOwnerId);
     }
 
@@ -30,11 +29,11 @@ public class ReportService {
         if (!checkOwnerReport(reportOwnerId,reportId))
             return null;
 
-        return new ByteArrayResource(reportDAO.getById(reportId).getSource());
+        return new ByteArrayResource(reportDAO.getByIdWithSource(reportId).getSource());
     }
 
-    public List<Report> getListForUser(long userId) throws Exception {
-        return reportDAO.listByObject(userId);
+    public List<Report> getListForUser(long userId) {
+        return reportDAO.listByObjectWithoutSource(userId);
     }
 
     public boolean removeReport(long reportOwnerId, long reportId) {

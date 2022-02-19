@@ -24,17 +24,17 @@ function resetAnalyticsInfo() {
         'general',
         'audience',
 
-        'audience_res_ScResolution',
-        'audience_res_OS',
-        'audience_res_browser',
-        'audience_res_Device',
-        'audience_res_country',
+        'ars_ScResolution',
+        'ars_OS',
+        'ars_browser',
+        'ars_Device',
+        'ars_country',
 
-        'audience_ref_ScResolution',
-        'audience_ref_browser',
-        'audience_ref_OS',
-        'audience_ref_Device',
-        'audience_ref_country'
+        'arf_ScResolution',
+        'arf_browser',
+        'arf_OS',
+        'arf_Device',
+        'arf_country'
     ];
 
     for (let item of infoBlocks) {
@@ -66,10 +66,10 @@ function fillingFilter(jsonFuncInfoString) {
     }
 
     // Filling 
-    filling(filters.General);
-    filling(filters.Audience);
-    filling(filters.Audience_res);
-    filling(filters.Audience_ref);
+    filling(filters.generalGroup);
+    filling(filters.audienceGroup);
+    filling(filters.audienceResGroup);
+    filling(filters.audienceRefGroup);
 
     formFilter.innerHTML = outHtmlCode;
 }
@@ -79,7 +79,6 @@ function fillingFilter(jsonFuncInfoString) {
  */
 function updateDataAnalytics() {
     resetAnalyticsInfo();
-    //debugLog('Get analytic data');
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/analytics');
@@ -113,55 +112,54 @@ function updateDataAnalytics() {
  */
 function displayOfDataAnalytics(jsonData) {
     let analyticDataObject = JSON.parse(jsonData);
-    const generalObject = analyticDataObject.general;
+    const generalGroup = analyticDataObject.generalGroup;
 
-    // Set text view
+    // Text info
     let containerText = document.getElementById(textInfoContainerId);
     let outInfo = `
         <div class="textGeneralInfo">
-        <b>Посетителей online:</b> ${generalObject.onlineVisitors}<br>
-        <b>Всего уникальных посетителей:</b> ${generalObject.allUniqueVisitors}<br>
-        <b>Всего просмотров:</b> ${generalObject.allCountVisitedResource}<br>
-        <b>Среднее количество просмотров страниц:</b> ${generalObject.avgCountVisitedResource}<br>
+        <b>Посетителей online:</b> ${generalGroup.online} <br>
+        <b>Всего уникальных посетителей:</b> ${generalGroup.allUniqueVisitor}<br>
+        <b>Всего просмотров:</b> ${generalGroup.allCountVisitedRes}<br>
+        <b>Среднее количество просмотров страниц:</b> ${generalGroup.avgCountVisitedRes}<br>
         </dvi>`;
     containerText.innerHTML += outInfo;
 
+    // Charts
     google.charts.load('current', { 'packages': ['corechart'] });
     google.charts.load('current', { 'packages': ['geochart'], 'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY' });
-    google.charts.setOnLoadCallback(gchartsCallback);
-
-    function gchartsCallback() {
+    google.charts.setOnLoadCallback(function() {
         // General
-        drawChart('line', 'general', 'visitedOnDayChart', generalObject.statVisitOnDay, 'Посетителей в день');
-        drawChart('pie', 'general', 'generalStatRefererChart', generalObject.statReferer, 'Статистика переходов');
-        drawChart('pie', 'general', 'generalStatResourcesChart', generalObject.statResource, 'Статистика посещений страниц');
+        drawChart('line', 'general', '0', generalGroup.statVisitOnDay, 'Посещений в день');
+        drawChart('pie', 'general', '1', generalGroup.statReferer, 'Статистика переходов');
+        drawChart('pie', 'general', '2', generalGroup.statResource, 'Статистика посещений страниц');
 
         // Audience
-        const audienceObject = analyticDataObject.audience;
-        drawChart('pie', 'audience', 'audienceOSChart', audienceObject.OS, 'Статистика использования операционных систем');
-        drawChart('column', 'audience', 'audienceBrowserChart', audienceObject.browser, 'Статистика использования браузеров');
-        drawChart('column', 'audience', 'audienceDeviceChart', audienceObject.Device, 'Статистика использования аппаратных устройств');
-        drawChart('column', 'audience', 'audienceScResolutionChart', audienceObject.ScResolution, 'Статистика посетителей по разрешениям экрана');
-        drawChart('geo', 'audience', 'audienceCountryChart', audienceObject.Country, 'Статистика посетителей по странам');
+        const audienceGroup = analyticDataObject.audienceGroup;
+        drawChart('pie', 'audience', '3', audienceGroup.statOS, 'Статистика использования операционных систем');
+        drawChart('column', 'audience', '4', audienceGroup.statBrowser, 'Статистика использования браузеров');
+        drawChart('column', 'audience', '5', audienceGroup.statDevice, 'Статистика использования аппаратных устройств');
+        drawChart('column', 'audience', '6', audienceGroup.statScResolution, 'Статистика посетителей по разрешениям экрана');
+        drawChart('geo', 'audience', '7', audienceGroup.statCountry, 'Статистика посетителей по странам');
 
         // Audience resources
         const titleResourceChart = 'Страница';
-        const audienceResource = analyticDataObject.audienceResource;
-        drawNested('pie', 'audience_res_ScResolution', 'audience_res_scr_', audienceResource.ScResolution, titleResourceChart);
-        drawNested('pie', 'audience_res_browser', 'audience_res_browser_', audienceResource.browser, titleResourceChart);
-        drawNested('pie', 'audience_res_OS', 'audience_res_os_', audienceResource.OS, titleResourceChart);
-        drawNested('pie', 'audience_res_Device', 'audience_res_device_', audienceResource.Device, titleResourceChart);
-        drawNested('pie', 'audience_res_country', 'audience_res_country_', audienceResource.Country, titleResourceChart);
+        const audienceResGroup = analyticDataObject.audienceResGroup;
+        drawNested('pie', 'ars_ScResolution', '8', audienceResGroup.statResScResolution, titleResourceChart);
+        drawNested('pie', 'ars_browser', '9', audienceResGroup.statResBrowser, titleResourceChart);
+        drawNested('pie', 'ars_OS', '10', audienceResGroup.statResOS, titleResourceChart);
+        drawNested('pie', 'ars_Device', '11', audienceResGroup.statResDevice, titleResourceChart);
+        drawNested('pie', 'ars_country', '12', audienceResGroup.statResCountry, titleResourceChart);
 
         // Audience referer
         const titleRefererChart = 'Сторонний ресурс';
-        const audienceReferer = analyticDataObject.audienceReferer;
-        drawNested('pie', 'audience_ref_ScResolution', 'audience_res_scr_', audienceReferer.ScResolution, titleRefererChart);
-        drawNested('pie', 'audience_ref_browser', 'audience_ref_browser_', audienceReferer.browser, titleRefererChart);
-        drawNested('pie', 'audience_ref_OS', 'audience_ref_os_', audienceReferer.OS, titleRefererChart);
-        drawNested('pie', 'audience_ref_Device', 'audience_ref_device_', audienceReferer.Device, titleRefererChart);
-        drawNested('pie', 'audience_ref_country', 'audience_ref_country_', audienceReferer.Country, titleRefererChart);
-    }
+        const audienceRefGroup = analyticDataObject.audienceRefGroup;
+        drawNested('pie', 'arf_ScResolution', '13', audienceRefGroup.statRefScResolution, titleRefererChart);
+        drawNested('pie', 'arf_browser', '14', audienceRefGroup.statRefBrowser, titleRefererChart);
+        drawNested('pie', 'arf_OS', '15', audienceRefGroup.statRefOS, titleRefererChart);
+        drawNested('pie', 'arf_Device', '16', audienceRefGroup.statRefDevice, titleRefererChart);
+        drawNested('pie', 'arf_country', '17', audienceRefGroup.statRefCountry, titleRefererChart);
+    });
 }
 
 /*
@@ -213,40 +211,46 @@ function drawChart(type, containerParent, containerId, objectData, title) {
 
     // draw
 
-    switch (type) {
-        case "pie":
-            new google.visualization.PieChart(container).draw(data, {
-                'title': title,
-                is3D: true,
-                height: 240
-            });
-            break;
-        case "line":
-            new google.visualization.LineChart(container).draw(data, {
-                'title': title,
-                height: 240
-            });
-            break;
-        case "column":
-            var view = new google.visualization.DataView(data);
-            var optionsColumn = {
-                'title': title,
-                bar: { groupWidth: "95%" },
-                legend: { position: "none" },
-                height: 240
-            };
-            new google.visualization.ColumnChart(container).draw(view, optionsColumn);
-            break;
-        case "geo":
-            new google.visualization.GeoChart(container).draw(data, {
-                'title': title,
-                height: 480
-            });
-            break;
-        default:
-            debugLog("drawChart:unknown type");
-            return false;
+    try {
+        switch (type) {
+            case "pie":
+                new google.visualization.PieChart(container).draw(data, {
+                    'title': title,
+                    is3D: true,
+                    height: 240
+                });
+                break;
+            case "line":
+                new google.visualization.LineChart(container).draw(data, {
+                    'title': title,
+                    height: 240
+                });
+                break;
+            case "column":
+                var view = new google.visualization.DataView(data);
+                var optionsColumn = {
+                    'title': title,
+                    bar: { groupWidth: "95%" },
+                    legend: { position: "none" },
+                    height: 240
+                };
+                new google.visualization.ColumnChart(container).draw(view, optionsColumn);
+                break;
+            case "geo":
+                new google.visualization.GeoChart(container).draw(data, {
+                    'title': title,
+                    height: 480
+                });
+                break;
+            default:
+                debugLog("drawChart:unknown type");
+                return false;
+        }
+    } catch (exception) {
+        debugLog(exception);
+        return false;
     }
+
 
     return true;
 }
@@ -261,6 +265,8 @@ function drawNested(type, containerParent, containerNamePrefix, objectData, titl
                 drawChart(type, containerParent, containerNamePrefix + name, object, titleChart + ' ' + name);
             }
         );
+    } else {
+        debugLog('drawNested: invalud objectData!');
     }
 }
 

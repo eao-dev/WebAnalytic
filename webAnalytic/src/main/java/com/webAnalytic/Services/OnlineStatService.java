@@ -1,6 +1,6 @@
 package com.webAnalytic.Services;
 
-import com.webAnalytic.DAO.WebSiteDAO;
+import com.webAnalytic.Domains.DAO.WebSiteDAO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,10 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+/**
+ * Service for interacting with the server OnlineStat.
+ * */
 
 @Service
 public class OnlineStatService {
@@ -40,9 +44,9 @@ public class OnlineStatService {
     }
 
     /**
-     * Send a complete list of sites to OnlineStat-service;
+     * Send a complete list of sites to OnlineStat-server;
      *
-     * This method call at start;
+     * This method call at start.
      * */
     @PostConstruct
     private void sendInfoAboutSites() {
@@ -56,7 +60,7 @@ public class OnlineStatService {
     }
 
     /**
-     * Send siteId to onlineStat-service;
+     * Send siteId to onlineStat-service.
      *
      * @param siteId - id of web-site;
      * */
@@ -67,9 +71,9 @@ public class OnlineStatService {
     }
 
     /**
-     * Remove site from onlineStat-service;
+     * Remove site from onlineStat-server;
      *
-     * @param siteId - id of web-site;
+     * @param siteId - id of web-site.
      * */
     public void deleteSite(long siteId) {
         try {
@@ -86,7 +90,7 @@ public class OnlineStatService {
     }
 
     /**
-     * Send sites to OnlineStat-service;
+     * Send sites to OnlineStat-server;
      *
      * @param sites - List contains id of websites.
      **/
@@ -113,15 +117,8 @@ public class OnlineStatService {
             ResponseEntity<String> response = this.restTemplate.postForEntity(addSiteUrl, entity, String.class);
 
             // Created
-            boolean result = false;
-            if (response.getStatusCode() == HttpStatus.CREATED) {
-                result = true;
-                System.out.println("[+] send info about sites is successful!");
-            } else {
-                System.err.println("[-] send info about sites is unsuccessful!");
-            }
 
-            return result;
+            return response.getStatusCode() == HttpStatus.CREATED;
         } catch (Exception ex) {
             ex.printStackTrace();
         }

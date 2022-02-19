@@ -1,9 +1,9 @@
 package com.webAnalytic.Services;
 
-import com.webAnalytic.DAO.AccessUserWebSiteDAO;
-import com.webAnalytic.Entity.AccessUserWebSite;
-import com.webAnalytic.Entity.User;
-import com.webAnalytic.Entity.WebSite;
+import com.webAnalytic.Domains.DAO.AccessUserWebSiteDAO;
+import com.webAnalytic.Domains.AccessUserWebSite;
+import com.webAnalytic.Domains.User;
+import com.webAnalytic.Domains.WebSite;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +67,7 @@ public class AccessWebSiteService {
     public JSONObject usersListWithPermissions(User admin, long webSiteId) throws Exception {
         if (!userService.isOwnerWebSite(admin.getId(), webSiteId))
             return null;
-        var listAccessUserWebSite = accessUserWebSiteDAO.allUserListWithAccessByAdminId(admin.getId(), webSiteId);
+        var listAccessUserWebSite = accessUserWebSiteDAO.getAccessListByAdmin(admin.getId(), webSiteId);
         JSONArray jsonArray = new JSONArray();
 
         if (listAccessUserWebSite != null) {

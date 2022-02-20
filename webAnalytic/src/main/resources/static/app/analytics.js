@@ -1,8 +1,26 @@
 const debugMode = true;
 
-const analyticInfoContainerId = 'analyticInfo';
-const textInfoContainerId = 'textInfo';
-const chartsContainerId = 'charts';
+/*
+ * This object contains ID of containers.
+ */
+const containersId = {
+    textInfo: 'textInfo',
+    general: 'general',
+    audience: 'audience',
+
+    arsSc: 'ars_ScResolution',
+    arsBrowser: 'ars_browser',
+    arsOS: 'ars_OS',
+    arsDevice: 'ars_Device',
+    arsCountry: 'ars_country',
+
+    arfScR: 'arf_ScResolution',
+    arfBrowser: 'arf_browser',
+    arfOS: 'arf_OS',
+    arfDevice: 'arf_Device',
+    arfCountry: 'arf_country'
+};
+
 
 let analyticsData = null;
 
@@ -18,27 +36,8 @@ function debugLog(msg) {
  * Clear all data in the div containing the charts.
  */
 function resetAnalyticsInfo() {
-
-    const infoBlocks = [
-        'textInfo',
-        'general',
-        'audience',
-
-        'ars_ScResolution',
-        'ars_OS',
-        'ars_browser',
-        'ars_Device',
-        'ars_country',
-
-        'arf_ScResolution',
-        'arf_browser',
-        'arf_OS',
-        'arf_Device',
-        'arf_country'
-    ];
-
-    for (let item of infoBlocks) {
-        const div = document.getElementById(item);
+    for (key in containersId) {
+        const div = document.getElementById(containersId[key]);
         if (div != null)
             div.innerHTML = '';
     }
@@ -115,7 +114,8 @@ function displayOfDataAnalytics(jsonData) {
     const generalGroup = analyticDataObject.generalGroup;
 
     // Text info
-    let containerText = document.getElementById(textInfoContainerId);
+    let z = containersId.textInfo;
+    let containerText = document.getElementById(z);
     let outInfo = `
         <div class="textGeneralInfo">
         <b>Посетителей online:</b> ${generalGroup.online} <br>
@@ -130,35 +130,36 @@ function displayOfDataAnalytics(jsonData) {
     google.charts.load('current', { 'packages': ['geochart'], 'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY' });
     google.charts.setOnLoadCallback(function() {
         // General
-        drawChart('line', 'general', '0', generalGroup.statVisitOnDay, 'Посещений в день');
-        drawChart('pie', 'general', '1', generalGroup.statReferer, 'Статистика переходов');
-        drawChart('pie', 'general', '2', generalGroup.statResource, 'Статистика посещений страниц');
+        drawChart('line', containersId.general, '0', generalGroup.statVisitOnDay, 'Посещений в день');
+        drawChart('pie', containersId.general, '1', generalGroup.statReferer, 'Статистика переходов');
+        drawChart('pie', containersId.general, '2', generalGroup.statResource, 'Статистика посещений страниц');
 
         // Audience
         const audienceGroup = analyticDataObject.audienceGroup;
-        drawChart('pie', 'audience', '3', audienceGroup.statOS, 'Статистика использования операционных систем');
-        drawChart('column', 'audience', '4', audienceGroup.statBrowser, 'Статистика использования браузеров');
-        drawChart('column', 'audience', '5', audienceGroup.statDevice, 'Статистика использования аппаратных устройств');
-        drawChart('column', 'audience', '6', audienceGroup.statScResolution, 'Статистика посетителей по разрешениям экрана');
-        drawChart('geo', 'audience', '7', audienceGroup.statCountry, 'Статистика посетителей по странам');
+        drawChart('pie', containersId.audience, '3', audienceGroup.statOS, 'Статистика использования операционных систем');
+        drawChart('column', containersId.audience, '4', audienceGroup.statBrowser, 'Статистика использования браузеров');
+        drawChart('column', containersId.audience, '5', audienceGroup.statDevice, 'Статистика использования аппаратных устройств');
+        drawChart('column', containersId.audience, '6', audienceGroup.statScResolution, 'Статистика посетителей по разрешениям экрана');
+        drawChart('geo', containersId.audience, '7', audienceGroup.statCountry, 'Статистика посетителей по странам');
+
 
         // Audience resources
         const titleResourceChart = 'Страница';
         const audienceResGroup = analyticDataObject.audienceResGroup;
-        drawNested('pie', 'ars_ScResolution', '8', audienceResGroup.statResScResolution, titleResourceChart);
-        drawNested('pie', 'ars_browser', '9', audienceResGroup.statResBrowser, titleResourceChart);
-        drawNested('pie', 'ars_OS', '10', audienceResGroup.statResOS, titleResourceChart);
-        drawNested('pie', 'ars_Device', '11', audienceResGroup.statResDevice, titleResourceChart);
-        drawNested('pie', 'ars_country', '12', audienceResGroup.statResCountry, titleResourceChart);
+        drawNested('pie', containersId.arsSc, '8', audienceResGroup.statResScResolution, titleResourceChart);
+        drawNested('pie', containersId.arsBrowser, '9', audienceResGroup.statResBrowser, titleResourceChart);
+        drawNested('pie', containersId.arsOS, '10', audienceResGroup.statResOS, titleResourceChart);
+        drawNested('pie', containersId.arsDevice, '11', audienceResGroup.statResDevice, titleResourceChart);
+        drawNested('pie', containersId.arsCountry, '12', audienceResGroup.statResCountry, titleResourceChart);
 
         // Audience referer
         const titleRefererChart = 'Сторонний ресурс';
         const audienceRefGroup = analyticDataObject.audienceRefGroup;
-        drawNested('pie', 'arf_ScResolution', '13', audienceRefGroup.statRefScResolution, titleRefererChart);
-        drawNested('pie', 'arf_browser', '14', audienceRefGroup.statRefBrowser, titleRefererChart);
-        drawNested('pie', 'arf_OS', '15', audienceRefGroup.statRefOS, titleRefererChart);
-        drawNested('pie', 'arf_Device', '16', audienceRefGroup.statRefDevice, titleRefererChart);
-        drawNested('pie', 'arf_country', '17', audienceRefGroup.statRefCountry, titleRefererChart);
+        drawNested('pie', containersId.arfScR, '13', audienceRefGroup.statRefScResolution, titleRefererChart);
+        drawNested('pie', containersId.arfBrowser, '14', audienceRefGroup.statRefBrowser, titleRefererChart);
+        drawNested('pie', containersId.arfOS, '15', audienceRefGroup.statRefOS, titleRefererChart);
+        drawNested('pie', containersId.arfDevice, '16', audienceRefGroup.statRefDevice, titleRefererChart);
+        drawNested('pie', containersId.arfCountry, '17', audienceRefGroup.statRefCountry, titleRefererChart);
     });
 }
 
@@ -281,5 +282,4 @@ function resize() {
 }
 
 window.onresize = resize;
-
-$(document.querySelectorAll('.collapse')).on('show.bs.collapse', window.onresize);
+$(document.querySelectorAll('.collapse')).on('show.bs.collapse', resize);

@@ -6,7 +6,7 @@ import com.webAnalytic.Domains.Visitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.ResultSet;
+import java.sql.*;
 
 @Component
 public class VisitorDAO implements DAO<Visitor> {
@@ -40,23 +40,64 @@ public class VisitorDAO implements DAO<Visitor> {
         return getById(visitor.getId());
     }
 
-    public boolean createWithLastInsertedId(Visitor visitor) {
+    /**
+     * Adds a new visitor to the database and assigns an ID to it.
+     * */
+    public boolean createWithId(Visitor visitor) {
         assert (visitor != null);
-        String sqlQuery = "exec CreateVisitor ?,?,?,?,?";
 
-        if (jdbcLayer.update(sqlQuery,  visitor.getCountry(), visitor.getBrowser(), visitor.getOS(),
-                visitor.getScResolution(), visitor.getDevice()) == 0)
-            return false;
+        // Add to DB bypass the JDBC layer
+        PreparedStatement preparedStatement = null;
+        Connection connection = null;
+        try {
+            connection = jdbcLayer.getConnection();
+            preparedStatement = connection.prepareStatement("exec CreateVisitor ?,?,?,?,?");
 
-        String sqlQueryIdentity = "select @@identity";
-        IMapper<Long> mapper = (ResultSet resultSet) -> resultSet.getLong(1);
+            if (preparedStatement == null)
+                throw new Exception("prepareStatement returns null");
 
-        Long id = jdbcLayer.select(sqlQueryIdentity, mapper).stream().findFirst().orElse(null);
-        if (id == null)
-            return false;
+            preparedStatement.setObject(1, visitor.getCountry());
+            preparedStatement.setObject(2, visitor.getBrowser());
+            preparedStatement.setObject(3, visitor.getOS());
+            preparedStatement.setObject(4, visitor.getScResolution());
+            preparedStatement.setObject(5, visitor.getDevice());
 
-        visitor.setId(id);
-        return true;
+            int rowsAffected = preparedStatement.executeUpdate();
+            preparedStatement.close();
+
+            if (rowsAffected > 0) {
+                preparedStatement = connection.prepareStatement("select @@identity");
+
+                if (preparedStatement == null)
+                    throw new Exception("prepareStatement returns null");
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                if (resultSet==null)
+                    throw new Exception("resultSet is null");
+
+                if (resultSet.next()) {
+                    visitor.setId(resultSet.getLong(1));
+                    resultSet.close();
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            if (preparedStatement != null)
+                preparedStatement.close();
+
+            if (connection != null)
+                connection.close();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        return (visitor.getId() != 0);
     }
 
     @Override

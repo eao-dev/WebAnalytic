@@ -2,11 +2,6 @@ USE [master]
 GO
 
 CREATE DATABASE [webAnalytic]
- CONTAINMENT = NONE
- ON  PRIMARY 
-( NAME = N'webAnalytic', FILENAME = N'D:\webAnalytic.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
- LOG ON 
-( NAME = N'webAnalytic_log', FILENAME = N'D:\webAnalytic_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
 GO
 ALTER DATABASE [webAnalytic] SET COMPATIBILITY_LEVEL = 140
 GO
@@ -77,13 +72,7 @@ ALTER DATABASE [webAnalytic] SET QUERY_STORE = OFF
 GO
 USE [webAnalytic]
 GO
-/****** Object:  Schema [db_user]    Script Date: 10.02.2022 21:22:44 ******/
-CREATE SCHEMA [db_user]
-GO
-/****** Object:  Schema [db_visitor]    Script Date: 10.02.2022 21:22:44 ******/
-CREATE SCHEMA [db_visitor]
-GO
-/****** Object:  UserDefinedFunction [dbo].[allCountVisitedRes]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[allCountVisitedRes]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -102,7 +91,7 @@ end
 
 
 GO
-/****** Object:  UserDefinedFunction [dbo].[allUniqueVisitor]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[allUniqueVisitor]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -118,7 +107,7 @@ begin
 	where ([Visit].DateTime between @fromDateTime and @toDateTime) and ([Resource].WebSite_id = @WebSiteID) group by Visitor_id) )  tmp);
 end
 GO
-/****** Object:  UserDefinedFunction [dbo].[avgCountVisitedRes]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[avgCountVisitedRes]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -138,25 +127,7 @@ as visitStat)
 
 end
 GO
-/****** Object:  UserDefinedFunction [dbo].[newVisitorCount]    Script Date: 10.02.2022 21:22:44 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE function [dbo].[newVisitorCount] (@fromDateTime DateTime, @toDateTime DateTime, @WebSiteID bigint)
-returns bigint 
-begin
-	return (select count(*) from Visit
-			inner join Resource on Resource.ID = Visit.Resource_id
-			inner join Visitor on Visitor.ID = Visit.Visitor_id
-			where
-			([Resource].WebSite_id = @WebSiteID) and
-			([Visitor].dateReg between @fromDateTime and @toDateTime))
-
-end
-GO
-/****** Object:  Table [dbo].[Resource]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[Resource]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -175,7 +146,7 @@ CREATE TABLE [dbo].[Resource](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[browser]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[browser]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -189,7 +160,7 @@ CREATE TABLE [dbo].[browser](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Visit]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[Visit]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -206,7 +177,7 @@ CREATE TABLE [dbo].[Visit](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Visitor]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[Visitor]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -225,7 +196,7 @@ CREATE TABLE [dbo].[Visitor](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  UserDefinedFunction [dbo].[statBrowser]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statBrowser]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -246,7 +217,7 @@ select Browser, count(*) as cnt from
 
 
 GO
-/****** Object:  Table [dbo].[OS]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[OS]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -260,7 +231,7 @@ CREATE TABLE [dbo].[OS](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  UserDefinedFunction [dbo].[statOs]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statOs]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -279,7 +250,7 @@ select OS, count(*) as cnt from
 	group by Visitor.id, OS.name) t
 	group by OS
 GO
-/****** Object:  Table [dbo].[Device]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[Device]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -293,7 +264,7 @@ CREATE TABLE [dbo].[Device](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  UserDefinedFunction [dbo].[statDevice]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statDevice]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -312,7 +283,7 @@ select Device, count(*) as cnt from
 	group by Visitor.id, Device.name) t
 	group by Device
 GO
-/****** Object:  Table [dbo].[ScResolution]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[ScResolution]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -326,7 +297,7 @@ CREATE TABLE [dbo].[ScResolution](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  UserDefinedFunction [dbo].[statScResolution]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statScResolution]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -345,7 +316,7 @@ select ScResolution, count(*) as cnt from
 	group by Visitor.id, ScResolution.value) t
 	group by ScResolution
 GO
-/****** Object:  UserDefinedFunction [dbo].[statResBrowser]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statResBrowser]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -354,7 +325,7 @@ GO
 CREATE function [dbo].[statResBrowser] (@fromDateTime DateTime, @toDateTime DateTime, @WebSiteID bigint)
 returns table as 
 return
-		select Browser, page, count(*) as cnt from  
+		select page, Browser, count(*) as cnt from  
 (select Browser.name as Browser, page from Visit
 	join Resource on Resource.ID = Visit.Resource_id
 	join Visitor on Visitor.ID = Visit.Visitor_id
@@ -364,7 +335,7 @@ return
 	group by Visitor.id, Browser.name, page) t
 	group by Browser, page
 GO
-/****** Object:  UserDefinedFunction [dbo].[statResOS]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statResOS]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -383,7 +354,7 @@ return
 	group by Visitor.id, page, OS.name) t
 	group by page, OS
 GO
-/****** Object:  UserDefinedFunction [dbo].[statResDevice]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statResDevice]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -402,7 +373,7 @@ return
 	group by Visitor.id, page, Device.name) t
 	group by page, Device
 GO
-/****** Object:  UserDefinedFunction [dbo].[statResScResolution]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statResScResolution]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -421,7 +392,7 @@ return
 	group by Visitor.id, page, ScResolution.value) t
 	group by page, ScResolution
 GO
-/****** Object:  Table [dbo].[referer]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[referer]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -435,7 +406,7 @@ CREATE TABLE [dbo].[referer](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  UserDefinedFunction [dbo].[statRefBrowser]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statRefBrowser]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -445,7 +416,7 @@ GO
 CREATE function [dbo].[statRefBrowser] (@fromDateTime DateTime, @toDateTime DateTime, @WebSiteID bigint)
 returns table as 
 return
-select Browser, referer, count(*) as cnt from  
+select referer, Browser, count(*) as cnt from  
 (select Browser.name as Browser, Referer.host as referer from Visit
 	join Resource on Resource.ID = Visit.Resource_id
 	join Visitor on Visitor.ID = Visit.Visitor_id
@@ -456,7 +427,7 @@ select Browser, referer, count(*) as cnt from
 	group by Visitor.id, Browser.name,Referer.host) t
 	group by Browser, Referer
 GO
-/****** Object:  UserDefinedFunction [dbo].[statRefDevice]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statRefDevice]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -477,7 +448,7 @@ select referer, Device, count(*) as cnt from
 	group by Visitor.id, Referer.host, Device.name) t
 	group by Referer, Device
 GO
-/****** Object:  UserDefinedFunction [dbo].[statRefOS]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statRefOS]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -498,7 +469,7 @@ select referer, OS, count(*) as cnt from
 	group by Visitor.id, Referer.host, OS.name) t
 	group by Referer, OS
 GO
-/****** Object:  UserDefinedFunction [dbo].[statRefScResolution]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statRefScResolution]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -519,7 +490,7 @@ select referer, ScResolution, count(*) as cnt from
 	group by Visitor.id, Referer.host, ScResolution.value) t
 	group by Referer, ScResolution
 GO
-/****** Object:  Table [dbo].[country]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[country]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -533,7 +504,7 @@ CREATE TABLE [dbo].[country](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  UserDefinedFunction [dbo].[statCountry]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statCountry]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -554,7 +525,7 @@ select Country, count(*) as cnt from
 
 
 GO
-/****** Object:  UserDefinedFunction [dbo].[statResCountry]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statResCountry]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -574,7 +545,7 @@ return
 	group by Visitor.id, Country.iso_code,page ) t
 	group by Country, page 
 GO
-/****** Object:  UserDefinedFunction [dbo].[statRefCountry]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statRefCountry]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -598,7 +569,7 @@ select Referer, Country, count(*) as cnt from
 
 
 GO
-/****** Object:  UserDefinedFunction [dbo].[dateRange]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[dateRange]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -610,11 +581,10 @@ RETURN
 (
 	select MIN([datetime]) AS MIN, MAX([datetime]) AS MAX from Visit
 	inner join Resource on Resource.ID = Visit.Resource_id
-	inner join Visitor on Visitor.ID = Visit.Visitor_id
 	where Resource.WebSite_id = @WebSiteID
 )
 GO
-/****** Object:  UserDefinedFunction [dbo].[statVisitOnDay]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statVisitOnDay]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -629,7 +599,7 @@ where
 	([Visit].DateTime between @fromDateTime and @toDateTime)
 group by CAST([DateTime] as DATE);
 GO
-/****** Object:  UserDefinedFunction [dbo].[statResource]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statResource]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -642,7 +612,7 @@ return
 	where ([Visit].DateTime between @fromDateTime and @toDateTime) and ([Resource].WebSite_id = @WebSiteID)
 	group by [Resource].Page;
 GO
-/****** Object:  UserDefinedFunction [dbo].[statReferer]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  UserDefinedFunction [dbo].[statReferer]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -658,7 +628,7 @@ return
 	group by referer.host;
 
 GO
-/****** Object:  Table [dbo].[AccessUserWebSite]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[AccessUserWebSite]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -673,7 +643,7 @@ CREATE TABLE [dbo].[AccessUserWebSite](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Report]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[Report]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -689,7 +659,7 @@ CREATE TABLE [dbo].[Report](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[User]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[User]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -711,7 +681,7 @@ CREATE TABLE [dbo].[User](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[WebSite]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Table [dbo].[WebSite]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -729,7 +699,7 @@ CREATE TABLE [dbo].[WebSite](
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_browser]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_browser]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_browser] ON [dbo].[browser]
 (
 	[name] ASC
@@ -737,7 +707,7 @@ CREATE NONCLUSTERED INDEX [IX_browser] ON [dbo].[browser]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_country]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_country]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_country] ON [dbo].[country]
 (
 	[iso_code] ASC
@@ -745,7 +715,7 @@ CREATE NONCLUSTERED INDEX [IX_country] ON [dbo].[country]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_Device]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_Device]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_Device] ON [dbo].[Device]
 (
 	[name] ASC
@@ -753,7 +723,7 @@ CREATE NONCLUSTERED INDEX [IX_Device] ON [dbo].[Device]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_OS]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_OS]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_OS] ON [dbo].[OS]
 (
 	[name] ASC
@@ -761,19 +731,19 @@ CREATE NONCLUSTERED INDEX [IX_OS] ON [dbo].[OS]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [FileName unique]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [FileName unique]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE UNIQUE NONCLUSTERED INDEX [FileName unique] ON [dbo].[Report]
 (
 	[FileName] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Report]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_Report]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_Report] ON [dbo].[Report]
 (
 	[User_id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Resource_1]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_Resource_1]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_Resource_1] ON [dbo].[Resource]
 (
 	[ID] ASC
@@ -781,7 +751,7 @@ CREATE NONCLUSTERED INDEX [IX_Resource_1] ON [dbo].[Resource]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_ScResolution]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_ScResolution]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_ScResolution] ON [dbo].[ScResolution]
 (
 	[value] ASC
@@ -789,14 +759,14 @@ CREATE NONCLUSTERED INDEX [IX_ScResolution] ON [dbo].[ScResolution]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_User]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_User]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_User] ON [dbo].[User]
 (
 	[Login] ASC,
 	[Name] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Visit]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_Visit]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_Visit] ON [dbo].[Visit]
 (
 	[Resource_id] ASC,
@@ -804,7 +774,7 @@ CREATE NONCLUSTERED INDEX [IX_Visit] ON [dbo].[Visit]
 	[DateTime] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Visitor]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_Visitor]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_Visitor] ON [dbo].[Visitor]
 (
 	[dateReg] ASC
@@ -812,7 +782,7 @@ CREATE NONCLUSTERED INDEX [IX_Visitor] ON [dbo].[Visitor]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_WebSite]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  Index [IX_WebSite]    Script Date: 20.02.2022 14:47:01 ******/
 CREATE NONCLUSTERED INDEX [IX_WebSite] ON [dbo].[WebSite]
 (
 	[Domain] ASC
@@ -906,7 +876,7 @@ ON DELETE CASCADE
 GO
 ALTER TABLE [dbo].[WebSite] CHECK CONSTRAINT [FK_TargetDomain_User]
 GO
-/****** Object:  StoredProcedure [dbo].[CreateVisit]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  StoredProcedure [dbo].[CreateVisit]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -929,7 +899,7 @@ end
 insert into [Visit] (Visitor_id, Resource_id, Referer_id) values (@Visitor_id, @res_id, @Referer_id);
 END
 GO
-/****** Object:  StoredProcedure [dbo].[CreateVisitor]    Script Date: 10.02.2022 21:22:44 ******/
+/****** Object:  StoredProcedure [dbo].[CreateVisitor]    Script Date: 20.02.2022 14:47:01 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

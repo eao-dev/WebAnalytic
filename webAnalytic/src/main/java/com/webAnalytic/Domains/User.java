@@ -16,7 +16,7 @@ public class User implements IMapper<User> {
 
     @NotNull
     @NotEmpty
-    @Pattern(regexp="^[a-zA-Z][a-zA-Z0-9-_.]{2,20}$", message = "Логин может содержать только латинские буквы и цифры.")
+    @Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9-_.]{2,20}$", message = "Логин может содержать только латинские буквы и цифры.")
     private String login;
 
     @NotNull
@@ -25,8 +25,8 @@ public class User implements IMapper<User> {
 
     @NotNull
     @NotEmpty
-    @Size(min=6, message = "Длина пароля должна составлять более 6 символов.")
-    @Pattern(regexp="(?=^.{5,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$",message = "Пароль должен " +
+    @Size(min = 6, message = "Пароль не менее 6 символов")
+    @Pattern(regexp = "(?=^.{5,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$", message = "Должен " +
             " содержать строчные и прописные латинские буквы, цифры, спецсимволы.")
     private String passwordString;
 
@@ -47,8 +47,9 @@ public class User implements IMapper<User> {
 
     /**
      * Set password (password hash)
+     *
      * @param password is password hash
-     * */
+     */
     public void setPassword(byte[] password) {
         this.password = password;
     }
@@ -61,7 +62,8 @@ public class User implements IMapper<User> {
         this.name = name;
     }
 
-    public User() {}
+    public User() {
+    }
 
     public User(long id) {
         this.id = id;
@@ -125,7 +127,7 @@ public class User implements IMapper<User> {
     public User map(ResultSet resultSet) throws SQLException {
 
         return new User(
-                resultSet.getLong("id")  ,
+                resultSet.getLong("id"),
                 resultSet.getString("login"),
                 resultSet.getBytes("password"),
                 resultSet.getString("name"),

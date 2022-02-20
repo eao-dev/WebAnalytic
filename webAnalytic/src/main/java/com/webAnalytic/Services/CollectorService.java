@@ -89,7 +89,7 @@ public class CollectorService {
         visitor.setDevice(device);
 
         // Add new visitor to DB
-        if (!visitorDAO.createWithLastInsertedId(visitor)) // here the identifier will be assigned to the object
+        if (!visitorDAO.createWithId(visitor)) // here the identifier will be assigned to the object
             return null;
 
         return visitor;

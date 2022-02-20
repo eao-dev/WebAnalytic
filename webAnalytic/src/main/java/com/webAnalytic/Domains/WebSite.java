@@ -39,17 +39,13 @@ public class WebSite implements IMapper<WebSite> {
     public WebSite() {
     }
 
-    public WebSite(long id, @NotNull(message = "Не должно быть null")
-    @NotEmpty(message = "Не должно быть пустым")
-    @Size(max = 255, message = "Длина от 3 до 255 символов") String domain, User admin) {
+    public WebSite(long id, String domain, User admin) {
         this.id = id;
         this.domain = domain;
         this.admin = admin;
     }
 
-    public WebSite(long id, @NotNull(message = "Не должно быть null")
-    @NotEmpty(message = "Не должно быть пустым")
-    @Size(max = 255, message = "Длина от 3 до 255 символов") String domain, User admin, Date date) {
+    public WebSite(long id, String domain, User admin, Date date) {
         this.id = id;
         this.domain = domain;
         this.admin = admin;

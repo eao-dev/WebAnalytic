@@ -32,8 +32,9 @@ public class ResourceDAO implements DAO<Resource> {
     @Override
     public Resource getByObject(Resource resource) {
         assert (resource != null);
-        String sqlQuery = "select * from [Resource] where page = ?";
-        return jdbcLayer.select(sqlQuery, resourceMapper, resource.getPage()).stream().findFirst().orElse(null);
+        String sqlQuery = "select * from [Resource] where page = ? and webSite_id = ?";
+        return jdbcLayer.select(sqlQuery, resourceMapper, resource.getPage(), resource.getDomain().getId())
+                .stream().findFirst().orElse(null);
     }
 
     @Override

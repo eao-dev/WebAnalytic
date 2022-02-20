@@ -13,8 +13,6 @@ public class Resource implements IMapper<Resource> {
     private long id;
     private WebSite domain;
 
-    @NotNull
-    @Pattern(regexp = "^[а-яА-ЯёЁa-zA-Z0-9]+$\n")
     private String page;
 
     public Resource() {}

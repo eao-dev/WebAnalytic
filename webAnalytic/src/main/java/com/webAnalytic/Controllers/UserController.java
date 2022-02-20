@@ -38,7 +38,8 @@ public class UserController extends BaseController {
     public String main(Model model) throws Exception {
         var userAuth = authCurrentUser();
         model.addAttribute("userList", userService.getUsersList(userAuth));
-        model.addAttribute("newUser", new User());
+        if (model.getAttribute("newUser") == null)
+            model.addAttribute("newUser", new User());
         model.addAttribute("userAuth", userAuth);
         return "/userManagement";
     }
@@ -49,7 +50,7 @@ public class UserController extends BaseController {
                       BindingResult br) throws Exception {
 
         if (br.hasErrors()) {
-//            redirectBindingResults(redirectAttributes, new PairObjectBindingResult("newUser", newUser, br));
+            redirectBindingResults(redirectAttributes, new PairObjectBindingResult("newUser", newUser, br));
             return "redirect:/userManagement";
         }
 
@@ -141,7 +142,7 @@ public class UserController extends BaseController {
     @ResponseBody
     public ResponseEntity<String> getPermissionUserSite(@RequestParam(name = "siteId") long siteId) throws Exception {
 
-        var out = accessWebSiteService.usersListWithPermissions(authCurrentUser(), siteId);
+        var out = accessWebSiteService.usersWithPermissions(authCurrentUser(), siteId);
         return new ResponseEntity<>(out.toString(), HttpStatus.OK);
     }
 

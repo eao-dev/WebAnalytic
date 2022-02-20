@@ -12,9 +12,7 @@ public class Visitor implements IMapper<Visitor> {
 
     private long id;
 
-    @Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9-_.]{1,10}$\n")
     private String country;
-
     private String Browser;
     private String OS;
     private String Device;
@@ -22,8 +20,8 @@ public class Visitor implements IMapper<Visitor> {
 
     private Date dateReg;
 
-    public Visitor(long id, @Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9-_.]{1,10}$\n") String country,
-                   String browser, String OS, String device, String scResolution, Date dateReg) {
+    public Visitor(long id, String country,String browser, String OS, String device,
+                   String scResolution, Date dateReg) {
         this.id = id;
         this.country = country;
         Browser = browser;

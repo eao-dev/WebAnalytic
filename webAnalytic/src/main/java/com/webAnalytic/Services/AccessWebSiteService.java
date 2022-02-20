@@ -64,7 +64,7 @@ public class AccessWebSiteService {
      * @param webSiteId - id of web-site;
      * @return JSON-array contain user list with permission.
      */
-    public JSONObject usersListWithPermissions(User admin, long webSiteId) throws Exception {
+    public JSONObject usersWithPermissions(User admin, long webSiteId) throws Exception {
         if (!userService.isOwnerWebSite(admin.getId(), webSiteId))
             return null;
         var listAccessUserWebSite = accessUserWebSiteDAO.getAccessListByAdmin(admin.getId(), webSiteId);
@@ -75,10 +75,15 @@ public class AccessWebSiteService {
                 var user = access.getUser();
                 var webSite = access.getWebSite();
 
-                var tmpJsonObj = new JSONObject().
-                        put(user.getLogin(), user.getId()).
+                JSONObject userJson = new JSONObject();
+                userJson.put("name", user.getName());
+                userJson.put("id", user.getId());
+
+                var userPermission = new JSONObject().
+                        put("user", userJson).
                         put("isAllow", webSite.getId() == webSiteId);
-                jsonArray.put(tmpJsonObj);
+
+                jsonArray.put(userPermission);
             }
         }
 

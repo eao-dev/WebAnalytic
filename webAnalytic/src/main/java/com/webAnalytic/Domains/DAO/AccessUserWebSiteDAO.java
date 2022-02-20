@@ -61,11 +61,10 @@ public class AccessUserWebSiteDAO implements DAO<AccessUserWebSite> {
                 "SimplyUser.UserAdmin_id as UserUserAdmin_id,\n" +
                 "*\n" +
                 " from [User] as AdminUser\n" +
-                " inner join [User] as SimplyUser on SimplyUser.UserAdmin_id = AdminUser.ID\n" +
-                " left join [AccessUserWebSite] on [AccessUserWebSite].User_id = SimplyUser.ID and " +
-                "[AccessUserWebSite].WebSite_id = ?\n" +
+                " join [User] as SimplyUser on SimplyUser.UserAdmin_id = AdminUser.ID\n" +
+                " left join [AccessUserWebSite] on [AccessUserWebSite].User_id = SimplyUser.ID "+
                 " left join [WebSite] on [WebSite].ID = [AccessUserWebSite].WebSite_id\n" +
-                " [User].ID = ?";
+                " where SimplyUser.ID = ? and WebSite_id is not null";
 
         return jdbcLayer.select(sqlQuery, accessUserWebSiteMapper, userId);
     }
@@ -89,8 +88,9 @@ public class AccessUserWebSiteDAO implements DAO<AccessUserWebSite> {
     public boolean userHasAccess(long webSiteId, long userId) {
         assert (webSiteId != 0);
         assert (userId != 0);
+        IMapper<Boolean> mapper = (ResultSet resultSet)-> resultSet.getRow()==1;
         String sqlQuery = "select * from [AccessUserWebSite]  where (WebSite_id=?) and (User_id=?)";
-        return jdbcLayer.select(sqlQuery, ResultSet::first, webSiteId, userId).stream().findFirst().orElse(false);
+        return jdbcLayer.select(sqlQuery, mapper, webSiteId, userId).stream().findFirst().orElse(false);
     }
 
 

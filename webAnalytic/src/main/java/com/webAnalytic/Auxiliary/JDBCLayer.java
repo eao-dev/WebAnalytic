@@ -1,24 +1,26 @@
 package com.webAnalytic.Auxiliary;
 
 import com.webAnalytic.Domains.IMapper;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is class implemented patter singleton
+ * Implements my wrapper over JDBC.
+ * Uses Hikari connection pool.
  */
 
 @Component
 @Scope("singleton")
 public class JDBCLayer {
-
-    private Connection connection;
 
     private static JDBCLayer instance;
 
@@ -43,6 +45,8 @@ public class JDBCLayer {
     @Value("${db.timeout}")
     private int timeout;
 
+    private HikariDataSource ds;
+
     private JDBCLayer() {
     }
 
@@ -55,134 +59,151 @@ public class JDBCLayer {
     }
 
     @PostConstruct
-    public boolean connect() throws SQLException {
+    public void connect() throws SQLException {
+        if (ds != null)
+            return;
 
-        System.out.println("connect!");
-
-        if (connection != null)
-            return true;
-
-        String connectionString = String.format("%s://%s:%d;database=%s;" +
-                        "encrypt=false;loginTimeout=%d;", // trustServerCertificate=false;
+        final String connectionString = String.format("%s://%s:%d;database=%s;encrypt=false;" +
+                        "loginTimeout=%d;user=%s;password=%s;",
                 typeDb,
                 server,
                 port,
                 dbName,
-                timeout);
-        connection = DriverManager.getConnection(connectionString, login, password);
+                timeout,
+                login,
+                password);
 
-        return (connection != null);
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(connectionString);
+        this.ds = new HikariDataSource(config);
     }
 
-    //@PreDestroy
+    @PreDestroy
     public boolean disconnect() {
-        System.out.println("disconnect!");
-        if (connection == null)
+        if (ds == null)
             return true;
 
-        try {
-            connection.close();
-            if (connection.isClosed()) {
-                connection = null;
-                return true;
-            }
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
+        ds.close();
+        if (!ds.isClosed())
+            return false;
 
-        return false;
+        ds = null;
+        return true;
     }
 
-    public Connection getConnection() {
-        return connection;
+    public Connection getConnection() throws SQLException {
+        assert (ds != null);
+        return ds.getConnection();
     }
 
     public <T> List<T> select(String sqlQuery, IMapper<T> mapper, Object... args) {
-        assert (connection != null);
         assert (mapper != null);
 
         ArrayList<T> resultList = null;
-
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
+        Connection connection = null;
 
         try {
+            connection = getConnection();
             preparedStatement = connection.prepareStatement(sqlQuery);
 
-            if (preparedStatement != null) {
+            if (preparedStatement == null)
+                throw new Exception("prepareStatement return null");
 
-                // Set parameters
-                for (int i = 0; i < args.length; ++i)
-                    preparedStatement.setObject(i + 1, args[i]);
+            // Set parameters
+            for (int i = 0; i < args.length; ++i)
+                preparedStatement.setObject(i + 1, args[i]);
 
-                resultSet = preparedStatement.executeQuery();
+            resultSet = preparedStatement.executeQuery();
 
-                resultList = new ArrayList<>(resultSet.getRow());
+            resultList = new ArrayList<>(resultSet.getRow());
 
-                // Handle result
-                while (resultSet.next())
-                    resultList.add(mapper.map(resultSet));
+            // Handle result
+            while (resultSet.next())
+                resultList.add(mapper.map(resultSet));
 
-            }
 
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
-        } finally {
-            try {
-                if (preparedStatement != null)
-                    preparedStatement.close();
-                if (resultSet != null)
-                    resultSet.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+        }
+
+        try {
+            if (preparedStatement != null)
+                preparedStatement.close();
+
+            if (resultSet != null)
+                resultSet.close();
+
+            if (connection != null)
+                connection.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         return resultList;
     }
 
+    /**
+     * Execute query (insert, delete, update) and returns number of rows changed.
+     *
+     * @param sqlQuery - string with SQL-query;
+     * @param args     - arguments for query.
+     */
     public long update(String sqlQuery, Object... args) {
         return update(sqlQuery, null, null, args);
     }
 
-    public long update(String sqlQuery, List<Long> insertedColumnArray, String nameColumnInserted, Object... args) {
-        assert (connection != null);
-
+    /**
+     * Execute query (insert, delete, update) and returns the number of rows changed,
+     * as well as the identifiers of the created records.
+     *
+     * @param sqlQuery           - string with SQL-query;
+     * @param insertedIdArray    - generated ids will be placed in this list;
+     * @param nameColumnInserted - the name of the column containing the identifier;
+     * @param args               - arguments for query.
+     * @return - number of rows affected;
+     */
+    public long update(String sqlQuery, List<Long> insertedIdArray, String nameColumnInserted, Object... args) {
         long result = 0;
         PreparedStatement preparedStatement = null;
 
         try {
-            if (insertedColumnArray != null && nameColumnInserted != null)
+            Connection connection = getConnection();
+
+            if (insertedIdArray != null && nameColumnInserted != null)
                 preparedStatement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
             else
                 preparedStatement = connection.prepareStatement(sqlQuery);
 
-            if (preparedStatement != null) {
+            if (preparedStatement == null)
+                throw new Exception("prepareStatement return null");
 
-                for (int i = 0; i < args.length; ++i)
-                    preparedStatement.setObject(i + 1, args[i]);
+            for (int i = 0; i < args.length; ++i)
+                preparedStatement.setObject(i + 1, args[i]);
 
-                result = preparedStatement.executeUpdate();
+            result = preparedStatement.executeUpdate();
+            if (result > 0 && insertedIdArray != null && nameColumnInserted != null) {
+                var resultSetGenKeys = preparedStatement.getGeneratedKeys();
 
-                if (result > 0 && insertedColumnArray != null && nameColumnInserted != null) {
-                    var resultSetGenKeys = preparedStatement.getGeneratedKeys();
-                    while (resultSetGenKeys.next())
-                        insertedColumnArray.add(resultSetGenKeys.getLong(1));
-                    resultSetGenKeys.close();
-                }
+                while (resultSetGenKeys.next())
+                    insertedIdArray.add(resultSetGenKeys.getLong(1));
 
+                resultSetGenKeys.close();
             }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+
+            if (preparedStatement != null)
+                preparedStatement.close();
 
         } catch (SQLException ex) {
             ex.printStackTrace();
-        } finally {
-
-            try {
-                if (preparedStatement != null)
-                    preparedStatement.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
         }
 
         return result;

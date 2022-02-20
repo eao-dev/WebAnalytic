@@ -61,9 +61,7 @@ public class Report implements IMapper<Report> {
         byte[] source = null;
         try {
             source = resultSet.getBytes("Source");
-        } catch (Exception ex){
-
-        }
+        } catch (Exception ex){}
         return new Report(resultSet.getLong("id"),
                 user,
                 resultSet.getString("FileName"),

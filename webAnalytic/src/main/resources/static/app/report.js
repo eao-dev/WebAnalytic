@@ -1,3 +1,5 @@
+const analyticInfoContainerId = 'analyticInfo';
+
 /*
  * Create and send to server report for site;
  */

@@ -75,22 +75,15 @@ function loadUserList(siteId) {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
                 let fullModalBody = "";
-                let obj = JSON.parse(xhr.response);
-                for (let item of obj.userListPermission) {
-                    let name, id;
+                let userPermissionList = JSON.parse(xhr.response);
+                for (let item of userPermissionList.userListPermission) {
                     let state = item["isAllow"];
-                    for (let key in item) {
-                        name = key;
-                        id = item[name];
-                        break;
-                    }
-
+                    let user = item["user"];
                     check = state ? 'checked' : '';
-
                     let modalBodyItem = `<div class="form-check form-switch">
-                                   <label class="form-check-label"> ${name}  </label>
+                                   <label class="form-check-label"> ${user["name"]}  </label>
                                    <input class="form-check-input"
-                                    onchange='changePermissionSiteAccess(${id},${siteId}, this)'
+                                    onchange='changePermissionSiteAccess(${user["id"]},${siteId}, this)'
                                    type="checkbox" ${check}/></div>`;
 
                     fullModalBody += modalBodyItem;

@@ -14,8 +14,7 @@ function getSimpleModalBody() {
 }
 
 function setSimpleModalBody(bodySource) {
-    document.getElementById(simpleMsgSuccessId).style.display = 'none';
-    document.getElementById(simpleMsgErrorId).style.display = 'none';
+    resetStatusSimplyModal();
     document.getElementById(setSimpleModalBodyId).innerHTML = bodySource;
 }
 

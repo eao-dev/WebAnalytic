@@ -75,6 +75,7 @@ public class JDBCLayer {
 
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(connectionString);
+        config.setMaximumPoolSize(10000);
         this.ds = new HikariDataSource(config);
     }
 

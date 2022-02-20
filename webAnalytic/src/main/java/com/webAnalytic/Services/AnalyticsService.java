@@ -43,8 +43,7 @@ public class AnalyticsService {
             {GROUPS.generalGroup, "Количество уникальных посетителей", "allUniqueVisitor", 0},
             {GROUPS.generalGroup, "Количество просмотренных страниц", "allCountVisitedRes", 0},
             {GROUPS.generalGroup, "Среднее количество просмотренных страниц", "avgCountVisitedRes", 0},
-            {GROUPS.generalGroup, "Количество новых посетителей за день", "newVisitorCount", 0},
-            {GROUPS.generalGroup, "Количество посетителей в день", "statVisitOnDay", 1},
+            {GROUPS.generalGroup, "Количество посещений в день", "statVisitOnDay", 1},
             {GROUPS.generalGroup, "Статистика посещения каждой страницы", "statResource", 1},
             {GROUPS.generalGroup, "Статистика переходов с внешних ресурсов", "statReferer", 1},
 
